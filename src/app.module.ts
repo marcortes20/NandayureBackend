@@ -3,8 +3,10 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
-import { User } from './users/entities/user.entity';
+//import { User } from './users/entities/user.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
+//import { Role } from './roles/entities/role.entity';
+import { MailerModule } from './mailer/mailer.module';
 
 @Module({
   imports: [
@@ -17,10 +19,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       username: 'root',
       password: '1234',
       database: 'db_nanda',
-      entities: [User],
+      //entities: [User, Role],
       synchronize: true,
       autoLoadEntities: true,
     }),
+    MailerModule,
   ],
   controllers: [AppController],
   providers: [AppService],

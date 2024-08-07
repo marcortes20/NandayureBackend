@@ -4,7 +4,7 @@ import { IsEmail, IsString, IsNotEmpty, IsNumber } from 'class-validator';
 export class RegisterDto {
   @ApiProperty()
   @IsNumber()
-  User_ID: number;
+  UserId: number;
 
   @ApiProperty()
   @IsEmail()

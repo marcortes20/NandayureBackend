@@ -1,10 +1,11 @@
 import { Exclude } from 'class-transformer';
-import { Column, Entity, PrimaryColumn } from 'typeorm';
+import { Role } from 'src/roles/entities/role.entity';
+import { Column, Entity, JoinTable, ManyToMany, PrimaryColumn } from 'typeorm';
 
 @Entity()
 export class User {
   @PrimaryColumn({ unique: true })
-  User_ID: number;
+  UserId: number;
 
   @Column()
   Name: string;
@@ -18,4 +19,9 @@ export class User {
   @Column()
   @Exclude()
   Password: string;
+
+  @ManyToMany(() => Role)
+  @JoinTable()
+  //@Transform(({ value }) => value.RoleName)
+  Roles: Role[];
 }

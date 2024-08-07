@@ -5,8 +5,8 @@ import { LoginDto } from './dto/login-dto';
 import { RegisterDto } from './dto/register-dto';
 import { AuthGuard } from './guards/auth.guard';
 import { RolesGuard } from './guards/roles.guard';
-import { Roles } from './roles/roles.decorator';
-import { Role } from './roles/role.enum';
+import { Roles } from './auth-roles/roles.decorator';
+import { Role } from './auth-roles/role.enum';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -14,8 +14,9 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
-  Login(@Body() loginDto: LoginDto) {
-    return this.authService.login(loginDto);
+  // @UsePipes(new ValidationPipe({ transform: true }))
+  async Login(@Body() loginDto: LoginDto) {
+    return await this.authService.login(loginDto);
   }
   @Post('register')
   Register(@Body() registerDto: RegisterDto) {

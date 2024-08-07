@@ -1,15 +1,19 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber, IsString } from 'class-validator';
+import { Transform } from 'class-transformer';
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class LoginDto {
+  @IsOptional()
+  csrfToken: string;
+
+  @Transform(({ value }) => parseInt(value, 10))
   @ApiProperty()
+  @IsNotEmpty()
   @IsNumber()
-  User_ID: number;
+  UserId: number;
 
   @ApiProperty()
+  @IsNotEmpty()
   @IsString()
   Password: string;
-
-  // @IsArray()
-  // roles: number[] = [2];
 }
