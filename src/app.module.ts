@@ -6,7 +6,6 @@ import { UsersModule } from './users/users.module';
 //import { User } from './users/entities/user.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 //import { Role } from './roles/entities/role.entity';
-import { MailerModule } from './mailer/mailer.module';
 
 @Module({
   imports: [
@@ -23,7 +22,6 @@ import { MailerModule } from './mailer/mailer.module';
       synchronize: true,
       autoLoadEntities: true,
     }),
-    MailerModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -9,6 +9,7 @@ import * as bcrypt from 'bcrypt';
 import { LoginDto } from './dto/login-dto';
 import { RegisterDto } from './dto/register-dto';
 import { JwtService } from '@nestjs/jwt';
+import { UpdateDto } from './dto/update-dto';
 
 @Injectable()
 export class AuthService {
@@ -68,6 +69,7 @@ export class AuthService {
 
       const rolesNames = userToLogin.Roles?.map((role) => role.RoleName);
       const payload = {
+        id: userToLogin.UserId,
         roles: rolesNames,
       };
 
@@ -88,5 +90,33 @@ export class AuthService {
         error: 'Error en el inicio de sesión: ' + error.message,
       });
     }
+  }
+
+  async update({ UserId, Mail, Name, Password, UserName }: UpdateDto) {
+    console.log(UserId, Mail, Name, Password, UserName);
+    // try {
+    //   const alreadyExist = await this.userService.findOneById(UserId);
+    //   if (alreadyExist != null) {
+    //     throw new ConflictException({
+    //       error: 'Ya existe un usuario con ese numero de identificación',
+    //     });
+    //   }
+    //   return this.userService.Register({
+    //     UserId,
+    //     Mail,
+    //     Name,
+    //     Password: await bcrypt.hash(Password, 10),
+    //     UserName,
+    //   });
+    // } catch (error) {
+    //   console.error('Error:', error);
+    //   if (error instanceof ConflictException) {
+    //     throw error; // Relanza la excepción específica
+    //   }
+    //   // Manejo de cualquier otra excepción no prevista
+    //   throw new InternalServerErrorException({
+    //     error: 'Error en el inicio de sesión: ' + error.message,
+    //   });
+    // }
   }
 }
