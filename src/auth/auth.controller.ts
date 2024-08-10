@@ -38,9 +38,8 @@ export class AuthController {
     return this.authService.update(updateDto);
   }
 
-  //@Roles(Role.Admin)
-  //@Request() req
-  //@UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.Admin)
+  @UseGuards(AuthGuard, RolesGuard)
   @UseGuards(AuthGuard)
   @Get()
   async SayHi(@Req() request: Request) {

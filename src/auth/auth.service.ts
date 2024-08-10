@@ -78,7 +78,6 @@ export class AuthService {
         name: userToLogin.Name,
         email: userToLogin.Mail,
         access_token: await this.jwtService.signAsync(payload),
-        roles: userToLogin.Roles,
       };
     } catch (error) {
       console.error('Error:', error);

@@ -3,11 +3,12 @@ import { Transform } from 'class-transformer';
 import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class LoginDto {
+  @ApiProperty()
   @IsOptional()
   csrfToken: string;
 
-  @Transform(({ value }) => parseInt(value, 10))
   @ApiProperty()
+  @Transform(({ value }) => parseInt(value, 10))
   @IsNotEmpty()
   @IsNumber()
   UserId: number;
