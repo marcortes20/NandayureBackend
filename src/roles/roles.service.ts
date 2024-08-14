@@ -44,7 +44,6 @@ export class RolesService {
       if (roleToSave) {
         return { message: 'Role already exists', role: roleToSave };
       }
-
       const newRole = this.roleRepository.create(createRoleDto);
       return this.roleRepository.save(newRole);
     } catch (error) {

@@ -10,12 +10,15 @@ import { LoginDto } from './dto/login-dto';
 import { RegisterDto } from './dto/register-dto';
 import { JwtService } from '@nestjs/jwt';
 import { UpdateDto } from './dto/update-dto';
+import { MailClientService } from 'src/mail-client/mail-client.service';
+//import { SendmailerService } from 'src/sendmailer/sendmailer.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UsersService,
     private jwtService: JwtService,
+    private readonly mailClient: MailClientService,
   ) {}
 
   async register({ UserId, Mail, Name, Password, UserName }: RegisterDto) {
@@ -117,5 +120,9 @@ export class AuthService {
     //     error: 'Error en el inicio de sesión: ' + error.message,
     //   });
     // }
+  }
+
+  async sendMaild() {
+    this.mailClient.sendMail();
   }
 }

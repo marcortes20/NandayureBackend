@@ -48,4 +48,9 @@ export class AuthController {
     console.log(user);
     return;
   }
+
+  @Post('sendMail')
+  async mail() {
+    return await this.authService.sendMaild();
+  }
 }
