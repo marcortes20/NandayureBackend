@@ -1,0 +1,17 @@
+import { Employee } from 'src/employees/entities/employee.entity';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+
+@Entity()
+export class MaritalStatus {
+  @PrimaryGeneratedColumn()
+  MaritalStatusId: number;
+
+  @Column()
+  Name: string;
+
+  @Column()
+  Description: string;
+
+  @OneToMany(() => Employee, (employee) => employee.MaritalStatus)
+  employees: Employee[];
+}

@@ -1,14 +1,15 @@
-import { IsEmail, IsString, IsNotEmpty } from 'class-validator';
+import { Transform } from 'class-transformer';
+import { IsEmail, IsNotEmpty, IsNumber } from 'class-validator';
 
 export class CreateUserDto {
-  @IsEmail()
-  Mail: string;
-
-  @IsString()
-  UserName: string;
+  @Transform(({ value }) => parseInt(value, 10))
+  @IsNotEmpty()
+  @IsNumber()
+  EmployeeId: number;
 
   @IsNotEmpty()
-  Password: string;
+  @IsEmail()
+  Mail: string;
 
   // @IsArray()
   // roles: number[] = [2];

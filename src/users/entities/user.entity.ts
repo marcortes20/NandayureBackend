@@ -1,27 +1,38 @@
 import { Exclude } from 'class-transformer';
+import { Employee } from 'src/employees/entities/employee.entity';
 import { Role } from 'src/roles/entities/role.entity';
-import { Column, Entity, JoinTable, ManyToMany, PrimaryColumn } from 'typeorm';
+import {
+  Column,
+  DeleteDateColumn,
+  Entity,
+  JoinColumn,
+  JoinTable,
+  ManyToMany,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity()
 export class User {
-  @PrimaryColumn({ unique: true })
+  @PrimaryGeneratedColumn()
   UserId: number;
 
   @Column()
-  Name: string;
-
-  @Column()
-  Mail: string;
-
-  @Column()
-  UserName: string;
+  EmployeeId: number;
 
   @Column()
   @Exclude()
   Password: string;
 
+  @OneToOne(() => Employee, (employee) => employee.User)
+  @JoinColumn({ name: 'EmployeeId' })
+  Employee: Employee;
+
   @ManyToMany(() => Role)
-  @JoinTable()
+  @JoinTable({ name: 'user_roles' })
   //@Transform(({ value }) => value.RoleName)
   Roles: Role[];
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
 }

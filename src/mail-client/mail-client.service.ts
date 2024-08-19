@@ -8,14 +8,12 @@ import { CreateMailClientDto } from './dto/create-mail-client.dto';
 export class MailClientService {
   constructor(private readonly mailService: MailerService) {}
 
-  sendMail() {
-    const message = `Forgot your password? If you didn't forget your password, please ignore this email!`;
-
+  async sendMail(createMailClientDto: CreateMailClientDto) {
     this.mailService.sendMail({
-      from: 'Kingsley Okure <kingsleyokgeorge@gmail.com>',
-      to: 'joanna@gmail.com',
-      subject: `How to Send Emails with Nodemailer`,
-      text: message,
+      from: 'RH-Nandayure',
+      to: createMailClientDto.to,
+      subject: createMailClientDto.subject,
+      text: createMailClientDto.message,
       html: '<p>HTML version of the message</p>',
     });
   }

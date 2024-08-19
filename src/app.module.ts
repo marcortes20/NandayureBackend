@@ -9,6 +9,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
 //import { MailClientModule } from './mail-client/mail-client.module';
+import { EmployeesModule } from './employees/employees.module';
+import { MaritalStatusModule } from './marital-status/marital-status.module';
+
+import { GendersModule } from './genders/genders.module';
 
 @Module({
   imports: [
@@ -34,6 +38,10 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     }),
     AuthModule,
     UsersModule,
+    EmployeesModule,
+    MaritalStatusModule,
+    GendersModule,
+    GendersModule,
   ],
 
   // imports: [

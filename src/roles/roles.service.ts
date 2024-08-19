@@ -25,7 +25,7 @@ export class RolesService {
         RoleName: 'RH',
       },
       {
-        RoleName: 'ADMIN',
+        RoleName: 'VA',
       },
     ];
 
@@ -40,9 +40,9 @@ export class RolesService {
 
   async create(createRoleDto: CreateRoleDto) {
     try {
-      const roleToSave = await this.findOneByName(createRoleDto.RoleName);
-      if (roleToSave) {
-        return { message: 'Role already exists', role: roleToSave };
+      const existRole = await this.findOneByName(createRoleDto.RoleName);
+      if (existRole) {
+        return { message: 'El rol ya existe: ', role: existRole.RoleName };
       }
       const newRole = this.roleRepository.create(createRoleDto);
       return this.roleRepository.save(newRole);

@@ -4,14 +4,19 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { RegisterDto } from 'src/auth/dto/register-dto';
+//import { RegisterDto } from 'src/auth/dto/register-dto';
 import { Role } from 'src/roles/entities/role.entity';
+import { CreateUserDto } from './dto/create-user.dto';
+import * as bcrypt from 'bcrypt';
+import * as generatePassword from 'generate-password';
+import { MailClientService } from 'src/mail-client/mail-client.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    private readonly mailClient: MailClientService,
 
     @InjectRepository(Role)
     private readonly roleRepository: Repository<Role>,
@@ -25,9 +30,9 @@ export class UsersService {
   //   return `This action returns all users`;
   // }
 
-  async findOneById(UserId: number) {
+  async findOneById(EmployeeId: number) {
     try {
-      return await this.userRepository.findOneBy({ UserId });
+      return await this.userRepository.findOneBy({ EmployeeId });
     } catch (error) {
       throw new InternalServerErrorException({
         error: 'Error: ' + error.message,
@@ -35,14 +40,15 @@ export class UsersService {
     }
   }
 
-  async findOne(UserId: number) {
+  async findOne(EmployeeId: number) {
     try {
       const userToSearch = await this.userRepository.findOne({
         relations: {
-          ['Roles']: true,
+          Roles: true,
+          Employee: true,
         },
         where: {
-          UserId,
+          EmployeeId,
         },
       });
       return userToSearch;
@@ -53,21 +59,27 @@ export class UsersService {
     }
   }
 
-  async Register(registerDto: RegisterDto) {
+  async Create(createUserDto: CreateUserDto) {
     try {
+      console.log(createUserDto);
       const initialRole = await this.roleRepository.findOneBy({
         RoleName: 'USER',
       });
-
-      const user = this.userRepository.create({
-        UserId: registerDto.UserId,
-        Mail: registerDto.Mail,
-        UserName: registerDto.UserName,
-        Password: registerDto.Password,
-        Name: registerDto.Name,
+      const password = await generatePassword.generate({
+        length: 5,
+        numbers: true,
+      });
+      const user = await this.userRepository.create({
+        EmployeeId: createUserDto.EmployeeId,
+        Password: await bcrypt.hash(password, 10),
         Roles: [initialRole],
       });
-      return this.userRepository.save(user);
+      await this.mailClient.sendMail({
+        to: createUserDto.Mail,
+        subject: 'Bienvenido',
+        message: `Su credenciales son: ${createUserDto.EmployeeId} y ${password}`,
+      });
+      return await this.userRepository.save(user);
     } catch (error) {
       throw new InternalServerErrorException({
         message: 'Error: ' + error.message,
