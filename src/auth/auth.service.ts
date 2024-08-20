@@ -1,5 +1,5 @@
 import {
-  ConflictException,
+  //ConflictException,
   Injectable,
   InternalServerErrorException,
   UnauthorizedException,
@@ -7,49 +7,52 @@ import {
 import { UsersService } from 'src/users/users.service';
 import * as bcrypt from 'bcrypt';
 import { LoginDto } from './dto/login-dto';
-import { RegisterDto } from './dto/register-dto';
+//import { RegisterDto } from './dto/register-dto';
 import { JwtService } from '@nestjs/jwt';
-import { UpdateDto } from './dto/update-dto';
+//import { UpdateDto } from './dto/update-dto';
+import { MailClientService } from 'src/mail-client/mail-client.service';
+//import { SendmailerService } from 'src/sendmailer/sendmailer.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UsersService,
     private jwtService: JwtService,
+    private readonly mailClient: MailClientService,
   ) {}
 
-  async register({ UserId, Mail, Name, Password, UserName }: RegisterDto) {
+  // async register({ UserId, Mail, Name, Password, UserName }: RegisterDto) {
+  //   try {
+  //     const alreadyExist = await this.userService.findOneById(UserId);
+
+  //     if (alreadyExist != null) {
+  //       throw new ConflictException({
+  //         error: 'Ya existe un usuario con ese numero de identificación',
+  //       });
+  //     }
+
+  //     return this.userService.Register({
+  //       UserId,
+  //       Mail,
+  //       Name,
+  //       Password: await bcrypt.hash(Password, 10),
+  //       UserName,
+  //     });
+  //   } catch (error) {
+  //     console.error('Error:', error);
+  //     if (error instanceof ConflictException) {
+  //       throw error; // Relanza la excepción específica
+  //     }
+  //     // Manejo de cualquier otra excepción no prevista
+  //     throw new InternalServerErrorException({
+  //       error: 'Error en el inicio de sesión: ' + error.message,
+  //     });
+  //   }
+  // }
+
+  async login({ EmployeeId, Password }: LoginDto) {
     try {
-      const alreadyExist = await this.userService.findOneById(UserId);
-
-      if (alreadyExist != null) {
-        throw new ConflictException({
-          error: 'Ya existe un usuario con ese numero de identificación',
-        });
-      }
-
-      return this.userService.Register({
-        UserId,
-        Mail,
-        Name,
-        Password: await bcrypt.hash(Password, 10),
-        UserName,
-      });
-    } catch (error) {
-      console.error('Error:', error);
-      if (error instanceof ConflictException) {
-        throw error; // Relanza la excepción específica
-      }
-      // Manejo de cualquier otra excepción no prevista
-      throw new InternalServerErrorException({
-        error: 'Error en el inicio de sesión: ' + error.message,
-      });
-    }
-  }
-
-  async login({ UserId, Password }: LoginDto) {
-    try {
-      const userToLogin = await this.userService.findOne(UserId);
+      const userToLogin = await this.userService.findOne(EmployeeId);
       if (!userToLogin) {
         throw new UnauthorizedException({
           error: 'No existe ese número de identificacion en el sistema',
@@ -74,9 +77,9 @@ export class AuthService {
       };
 
       return {
-        id: userToLogin.UserId,
-        name: userToLogin.Name,
-        email: userToLogin.Mail,
+        id: userToLogin.Employee.EmployeeId,
+        name: userToLogin.Employee.Name,
+        email: userToLogin.Employee.Mail,
         access_token: await this.jwtService.signAsync(payload),
       };
     } catch (error) {
@@ -91,31 +94,35 @@ export class AuthService {
     }
   }
 
-  async update({ UserId, Mail, Name, Password, UserName }: UpdateDto) {
-    console.log(UserId, Mail, Name, Password, UserName);
-    // try {
-    //   const alreadyExist = await this.userService.findOneById(UserId);
-    //   if (alreadyExist != null) {
-    //     throw new ConflictException({
-    //       error: 'Ya existe un usuario con ese numero de identificación',
-    //     });
-    //   }
-    //   return this.userService.Register({
-    //     UserId,
-    //     Mail,
-    //     Name,
-    //     Password: await bcrypt.hash(Password, 10),
-    //     UserName,
-    //   });
-    // } catch (error) {
-    //   console.error('Error:', error);
-    //   if (error instanceof ConflictException) {
-    //     throw error; // Relanza la excepción específica
-    //   }
-    //   // Manejo de cualquier otra excepción no prevista
-    //   throw new InternalServerErrorException({
-    //     error: 'Error en el inicio de sesión: ' + error.message,
-    //   });
-    // }
+  //async update({ UserId, Mail, Name, Password, UserName }: UpdateDto) {
+  // console.log(UserId, Mail, Name, Password, UserName);
+  // try {
+  //   const alreadyExist = await this.userService.findOneById(UserId);
+  //   if (alreadyExist != null) {
+  //     throw new ConflictException({
+  //       error: 'Ya existe un usuario con ese numero de identificación',
+  //     });
+  //   }
+  //   return this.userService.Register({
+  //     UserId,
+  //     Mail,
+  //     Name,
+  //     Password: await bcrypt.hash(Password, 10),
+  //     UserName,
+  //   });
+  // } catch (error) {
+  //   console.error('Error:', error);
+  //   if (error instanceof ConflictException) {
+  //     throw error; // Relanza la excepción específica
+  //   }
+  //   // Manejo de cualquier otra excepción no prevista
+  //   throw new InternalServerErrorException({
+  //     error: 'Error en el inicio de sesión: ' + error.message,
+  //   });
+  // }
+  //}
+
+  async sendMaild() {
+    //this.mailClient.sendMail();
   }
 }
