@@ -36,7 +36,7 @@ export class UpdateEmployeeDto {
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
-  Mail?: string;
+  Email?: string;
 
   @ApiPropertyOptional()
   @IsOptional()

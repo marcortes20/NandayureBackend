@@ -2,7 +2,6 @@ import { ApiProperty } from '@nestjs/swagger';
 import {
   IsInt,
   IsNotEmpty,
-  IsOptional,
   IsString,
   IsNumber,
   IsDateString,
@@ -43,7 +42,7 @@ export class CreateEmployeeDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsEmail()
-  Mail: string;
+  Email: string;
 
   @ApiProperty()
   @IsNotEmpty()
@@ -64,11 +63,6 @@ export class CreateEmployeeDto {
   @IsNotEmpty()
   @IsNumber()
   GrossSalary: number;
-
-  @ApiProperty()
-  @IsOptional()
-  @IsInt()
-  UserId?: number;
 
   @ApiProperty()
   @IsInt()

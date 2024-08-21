@@ -1,9 +1,11 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
 //import { Request } from 'express';
 import { AuthService } from './auth.service';
 import { ApiTags } from '@nestjs/swagger';
 import { LoginDto } from './dto/login-dto';
 import { AuthGuard } from './guards/auth.guard';
+import { ChangePasswordDto } from './dto/change-password-dto';
+import { ForgotPasswordDto } from './dto/forgot-password-dto';
 // import { RegisterDto } from './dto/register-dto';
 // import { AuthGuard } from './guards/auth.guard';
 // import { RolesGuard } from './guards/roles.guard';
@@ -17,21 +19,24 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
-  // @UsePipes(new ValidationPipe({ transform: true }))
   async Login(@Body() loginDto: LoginDto) {
     return await this.authService.login(loginDto);
   }
 
   @UseGuards(AuthGuard)
-  @Get()
-  async Register() {
-    return 'si sirve el token';
+  @Post('change-password')
+  async Register(@Req() req, @Body() changePasswordDto: ChangePasswordDto) {
+    return await this.authService.changePassword(
+      req.user.id,
+      changePasswordDto.oldPassword,
+      changePasswordDto.newPassword,
+    );
   }
-  // @UseGuards(AuthGuard)
-  // @Patch('update')
-  // Update(@Body() updateDto: UpdateDto) {
-  //   return this.authService.update(updateDto);
-  // }
+
+  @Post('forgot-password')
+  async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
+    return this.authService.forgotPassword(forgotPasswordDto.Email);
+  }
 
   // @Roles(Role.Admin)
   // @UseGuards(AuthGuard, RolesGuard)

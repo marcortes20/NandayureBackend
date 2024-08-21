@@ -34,7 +34,7 @@ export class EmployeesService {
       }
 
       const existEmployeeWithMail = await this.findOneByEmail(
-        createEmployeeDto.Mail,
+        createEmployeeDto.Email,
       );
 
       if (existEmployeeWithMail != null) {
@@ -51,7 +51,7 @@ export class EmployeesService {
 
       await this.userService.Create({
         EmployeeId: createEmployeeDto.EmployeeId,
-        Mail: createEmployeeDto.Mail,
+        Email: createEmployeeDto.Email,
       });
 
       return created;
@@ -75,8 +75,8 @@ export class EmployeesService {
     return await this.employeeRepository.findOneBy({ EmployeeId });
   }
 
-  async findOneByEmail(Mail: string) {
-    return await this.employeeRepository.findOneBy({ Mail });
+  async findOneByEmail(Email: string) {
+    return await this.employeeRepository.findOneBy({ Email });
   }
 
   async update(EmployeeId: number, updateEmployeeDto: UpdateEmployeeDto) {

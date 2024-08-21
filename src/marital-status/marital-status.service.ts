@@ -81,7 +81,7 @@ export class MaritalStatusService {
   }
 
   findAll() {
-    return `This action returns all maritalStatus`;
+    return this.maritarStatusRepository.find();
   }
 
   findOneByName(Name: string) {

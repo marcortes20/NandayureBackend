@@ -31,7 +31,7 @@ export class Employee {
   HiringDate: Date;
 
   @Column()
-  Mail: string;
+  Email: string;
 
   @Column()
   CellPhone: string;

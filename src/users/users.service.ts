@@ -40,6 +40,25 @@ export class UsersService {
     }
   }
 
+  async findOneByEmail(Email: string) {
+    try {
+      return await this.userRepository.findOne({
+        relations: {
+          Employee: true,
+        },
+        where: {
+          Employee: {
+            Email: Email,
+          },
+        },
+      });
+    } catch (error) {
+      throw new InternalServerErrorException({
+        error: 'Error: ' + error.message,
+      });
+    }
+  }
+
   async findOne(EmployeeId: number) {
     try {
       const userToSearch = await this.userRepository.findOne({
@@ -66,7 +85,7 @@ export class UsersService {
         RoleName: 'USER',
       });
       const password = await generatePassword.generate({
-        length: 5,
+        length: 6,
         numbers: true,
       });
       const user = await this.userRepository.create({
@@ -75,7 +94,7 @@ export class UsersService {
         Roles: [initialRole],
       });
       await this.mailClient.sendMail({
-        to: createUserDto.Mail,
+        to: createUserDto.Email,
         subject: 'Bienvenido',
         message: `Su credenciales son: ${createUserDto.EmployeeId} y ${password}`,
       });
@@ -87,9 +106,11 @@ export class UsersService {
     }
   }
 
-  // update(id: number, updateUserDto: UpdateUserDto) {
-  //   return `This action updates a #${id} user`;
-  // }
+  async updatePassword(EmployeeId: number, newPassword: string) {
+    const userToEdit = await this.findOneById(EmployeeId);
+    userToEdit.Password = await bcrypt.hash(newPassword, 10);
+    return await this.userRepository.save(userToEdit);
+  }
 
   // remove(id: number) {
   //   return `This action removes a #${id} user`;

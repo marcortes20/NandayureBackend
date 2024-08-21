@@ -9,15 +9,18 @@ import {
   JoinTable,
   ManyToMany,
   OneToOne,
-  PrimaryGeneratedColumn,
+  PrimaryColumn,
+  //PrimaryGeneratedColumn,
 } from 'typeorm';
 
 @Entity()
 export class User {
-  @PrimaryGeneratedColumn()
-  UserId: number;
+  // @PrimaryGeneratedColumn()
+  // UserId: number;
 
-  @Column()
+  // @Column()
+  // EmployeeId: number;
+  @PrimaryColumn()
   EmployeeId: number;
 
   @Column()

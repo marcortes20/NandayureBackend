@@ -2,6 +2,7 @@ import {
   //ConflictException,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
@@ -21,35 +22,6 @@ export class AuthService {
     private readonly mailClient: MailClientService,
   ) {}
 
-  // async register({ UserId, Mail, Name, Password, UserName }: RegisterDto) {
-  //   try {
-  //     const alreadyExist = await this.userService.findOneById(UserId);
-
-  //     if (alreadyExist != null) {
-  //       throw new ConflictException({
-  //         error: 'Ya existe un usuario con ese numero de identificación',
-  //       });
-  //     }
-
-  //     return this.userService.Register({
-  //       UserId,
-  //       Mail,
-  //       Name,
-  //       Password: await bcrypt.hash(Password, 10),
-  //       UserName,
-  //     });
-  //   } catch (error) {
-  //     console.error('Error:', error);
-  //     if (error instanceof ConflictException) {
-  //       throw error; // Relanza la excepción específica
-  //     }
-  //     // Manejo de cualquier otra excepción no prevista
-  //     throw new InternalServerErrorException({
-  //       error: 'Error en el inicio de sesión: ' + error.message,
-  //     });
-  //   }
-  // }
-
   async login({ EmployeeId, Password }: LoginDto) {
     try {
       const userToLogin = await this.userService.findOne(EmployeeId);
@@ -59,7 +31,12 @@ export class AuthService {
         });
       }
 
-      const IsCorrectPassword = await bcrypt.compare(
+      // const IsCorrectPassword = await bcrypt.compare(
+      //   Password,
+      //   userToLogin.Password,
+      // );
+
+      const IsCorrectPassword = await this.comparePasswords(
         Password,
         userToLogin.Password,
       );
@@ -72,14 +49,15 @@ export class AuthService {
 
       const rolesNames = userToLogin.Roles?.map((role) => role.RoleName);
       const payload = {
-        id: userToLogin.UserId,
+        id: userToLogin.EmployeeId,
         roles: rolesNames,
       };
 
       return {
-        id: userToLogin.Employee.EmployeeId,
         name: userToLogin.Employee.Name,
-        email: userToLogin.Employee.Mail,
+        surname1: userToLogin.Employee.Surname1,
+        surname2: userToLogin.Employee.Surname2,
+        email: userToLogin.Employee.Email,
         access_token: await this.jwtService.signAsync(payload),
       };
     } catch (error) {
@@ -94,35 +72,60 @@ export class AuthService {
     }
   }
 
-  //async update({ UserId, Mail, Name, Password, UserName }: UpdateDto) {
-  // console.log(UserId, Mail, Name, Password, UserName);
-  // try {
-  //   const alreadyExist = await this.userService.findOneById(UserId);
-  //   if (alreadyExist != null) {
-  //     throw new ConflictException({
-  //       error: 'Ya existe un usuario con ese numero de identificación',
-  //     });
-  //   }
-  //   return this.userService.Register({
-  //     UserId,
-  //     Mail,
-  //     Name,
-  //     Password: await bcrypt.hash(Password, 10),
-  //     UserName,
-  //   });
-  // } catch (error) {
-  //   console.error('Error:', error);
-  //   if (error instanceof ConflictException) {
-  //     throw error; // Relanza la excepción específica
-  //   }
-  //   // Manejo de cualquier otra excepción no prevista
-  //   throw new InternalServerErrorException({
-  //     error: 'Error en el inicio de sesión: ' + error.message,
-  //   });
-  // }
-  //}
+  async comparePasswords(passwordToCompare: string, mainPassword: string) {
+    const IsCorrectPassword = await bcrypt.compare(
+      passwordToCompare,
+      mainPassword,
+    );
 
-  async sendMaild() {
-    //this.mailClient.sendMail();
+    return IsCorrectPassword;
+  }
+
+  async changePassword(
+    EmployeeId: number,
+    oldPassword: string,
+    newPassword: string,
+  ) {
+    const userToEdit = await this.userService.findOneById(EmployeeId);
+
+    if (!userToEdit) {
+      throw new NotFoundException('Usurio no encontrado!');
+    }
+
+    const IsCorrectPassword = await this.comparePasswords(
+      oldPassword,
+      userToEdit.Password,
+    );
+    if (!IsCorrectPassword) {
+      throw new UnauthorizedException('Contraseña actual invalida');
+    }
+
+    return this.userService.updatePassword(EmployeeId, newPassword);
+  }
+
+  async forgotPassword(Email: string) {
+    const userToEdit = await this.userService.findOneByEmail(Email);
+    if (userToEdit) {
+      const payload = {
+        id: userToEdit.EmployeeId,
+        Email: userToEdit.Employee.Email,
+      };
+      const token = await this.jwtService.signAsync(payload);
+      const baseURL = 'https://www.tuaplicacion.com/reset-password';
+      const url = `${baseURL}?token=${token}`;
+
+      await this.mailClient.sendMail({
+        to: Email,
+        subject: 'Recuperacion de constraseña',
+        message: `utilice el siguiente linnk para recuperar su contraseña ${url}`,
+      });
+      //AQUI SE ENVIA EL CORREO
+      //return { access_token: await this.jwtService.signAsync(payload) };
+    }
+
+    return {
+      message:
+        'Si el usuario es valido recibirá un email en breve para la recuperación',
+    };
   }
 }

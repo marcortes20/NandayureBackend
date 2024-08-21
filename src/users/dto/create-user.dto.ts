@@ -9,7 +9,7 @@ export class CreateUserDto {
 
   @IsNotEmpty()
   @IsEmail()
-  Mail: string;
+  Email: string;
 
   // @IsArray()
   // roles: number[] = [2];
