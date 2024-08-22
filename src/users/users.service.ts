@@ -93,10 +93,9 @@ export class UsersService {
         Password: await bcrypt.hash(password, 10),
         Roles: [initialRole],
       });
-      await this.mailClient.sendMail({
+      await this.mailClient.sendWelcomeMail({
         to: createUserDto.Email,
         subject: 'Bienvenido',
-        message: `Su credenciales son: ${createUserDto.EmployeeId} y ${password}`,
       });
       return await this.userRepository.save(user);
     } catch (error) {

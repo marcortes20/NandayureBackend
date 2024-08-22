@@ -89,7 +89,7 @@ export class MaritalStatusService {
   }
 
   update(id: number, updateMaritalStatusDto: UpdateMaritalStatusDto) {
-    return `This action updates a #${id} maritalStatus`;
+    return updateMaritalStatusDto;
   }
 
   remove(id: number) {

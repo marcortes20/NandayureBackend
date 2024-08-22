@@ -12,6 +12,7 @@ import { LoginDto } from './dto/login-dto';
 import { JwtService } from '@nestjs/jwt';
 //import { UpdateDto } from './dto/update-dto';
 import { MailClientService } from 'src/mail-client/mail-client.service';
+import { ConfigService } from '@nestjs/config';
 //import { SendmailerService } from 'src/sendmailer/sendmailer.service';
 
 @Injectable()
@@ -20,6 +21,7 @@ export class AuthService {
     private readonly userService: UsersService,
     private jwtService: JwtService,
     private readonly mailClient: MailClientService,
+    private readonly configService: ConfigService,
   ) {}
 
   async login({ EmployeeId, Password }: LoginDto) {
@@ -111,16 +113,15 @@ export class AuthService {
         Email: userToEdit.Employee.Email,
       };
       const token = await this.jwtService.signAsync(payload);
-      const baseURL = 'https://www.tuaplicacion.com/reset-password';
-      const url = `${baseURL}?token=${token}`;
+      const FrontendRecoverURL =
+        await this.configService.get('ResetPasswordURL');
+      const url = `${FrontendRecoverURL}?token=${token}`;
 
-      await this.mailClient.sendMail({
+      await this.mailClient.sendRecoverPasswordMail({
         to: Email,
-        subject: 'Recuperacion de constraseña',
-        message: `utilice el siguiente linnk para recuperar su contraseña ${url}`,
+        subject: 'Recuperación de constraseña',
+        RecoverPasswordURL: url,
       });
-      //AQUI SE ENVIA EL CORREO
-      //return { access_token: await this.jwtService.signAsync(payload) };
     }
 
     return {
@@ -128,4 +129,13 @@ export class AuthService {
         'Si el usuario es valido recibirá un email en breve para la recuperación',
     };
   }
+
+  // async sendMail() {
+  //   return this.mailClient.sendRecoverPasswordMail({
+  //     to: 'marcortes.stives@gmail.com',
+  //     subject: 'welcome',
+  //     message: 'welcomea',
+  //     RecoverPasswordURL: 'https:recover',
+  //   });
+  // }
 }

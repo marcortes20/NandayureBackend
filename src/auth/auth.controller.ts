@@ -51,6 +51,6 @@ export class AuthController {
 
   // @Post('sendMail')
   // async mail() {
-  //   return await this.authService.sendMaild();
+  //   return await this.authService.sendMail();
   // }
 }
