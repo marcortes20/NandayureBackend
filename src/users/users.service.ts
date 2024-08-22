@@ -10,6 +10,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
 import * as generatePassword from 'generate-password';
 import { MailClientService } from 'src/mail-client/mail-client.service';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UsersService {
@@ -17,6 +18,7 @@ export class UsersService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private readonly mailClient: MailClientService,
+    private readonly configService: ConfigService,
 
     @InjectRepository(Role)
     private readonly roleRepository: Repository<Role>,
@@ -96,6 +98,7 @@ export class UsersService {
       await this.mailClient.sendWelcomeMail({
         to: createUserDto.Email,
         subject: 'Bienvenido',
+        LoginURL: await this.configService.get('FrontEndLoginURL'),
       });
       return await this.userRepository.save(user);
     } catch (error) {
