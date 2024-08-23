@@ -99,6 +99,8 @@ export class UsersService {
         to: createUserDto.Email,
         subject: 'Bienvenido',
         LoginURL: await this.configService.get('FrontEndLoginURL'),
+        EmployeeId: createUserDto.EmployeeId,
+        Password: password,
       });
       return await this.userRepository.save(user);
     } catch (error) {
