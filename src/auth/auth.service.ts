@@ -1,5 +1,5 @@
 import {
-  //ConflictException,
+  Inject,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -13,6 +13,9 @@ import { JwtService } from '@nestjs/jwt';
 //import { UpdateDto } from './dto/update-dto';
 import { MailClientService } from 'src/mail-client/mail-client.service';
 import { ConfigService } from '@nestjs/config';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
+import { v4 as uuidv4 } from 'uuid';
 //import { SendmailerService } from 'src/sendmailer/sendmailer.service';
 
 @Injectable()
@@ -22,6 +25,7 @@ export class AuthService {
     private jwtService: JwtService,
     private readonly mailClient: MailClientService,
     private readonly configService: ConfigService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
   async login({ EmployeeId, Password }: LoginDto) {
@@ -53,6 +57,7 @@ export class AuthService {
       const payload = {
         id: userToLogin.EmployeeId,
         roles: rolesNames,
+        jti: uuidv4(),
       };
 
       return {
@@ -108,11 +113,15 @@ export class AuthService {
   async forgotPassword(Email: string) {
     const userToEdit = await this.userService.findOneByEmail(Email);
     if (userToEdit) {
-      const payload = {
+      const payload = await {
         id: userToEdit.EmployeeId,
         Email: userToEdit.Employee.Email,
+        jti: uuidv4(),
       };
-      const token = await this.jwtService.signAsync(payload);
+
+      const token = await this.jwtService.signAsync(payload, {
+        expiresIn: '1h',
+      });
       const FrontendRecoverURL =
         await this.configService.get('ResetPasswordURL');
       const url = `${FrontendRecoverURL}?token=${token}`;
@@ -130,6 +139,15 @@ export class AuthService {
     };
   }
 
+  async resetPassword(EmployeeId: number, newPassword: string) {
+    const userToEdit = await this.userService.findOneById(EmployeeId);
+
+    if (!userToEdit) {
+      throw new NotFoundException('Usurio no encontrado!');
+    }
+
+    return this.userService.updatePassword(EmployeeId, newPassword);
+  }
   // async sendMail() {
   //   return this.mailClient.sendRecoverPasswordMail({
   //     to: 'marcortes.stives@gmail.com',

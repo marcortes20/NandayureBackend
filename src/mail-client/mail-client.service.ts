@@ -23,7 +23,7 @@ export class MailClientService {
       attachments: [
         {
           filename: 'MuniLogo',
-          path: './src/mail-client/utils/MuniLogo.jpeg',
+          path: './src/mail-client/assets/MuniLogo.jpeg',
           cid: 'logoImage',
         },
       ],
@@ -40,7 +40,7 @@ export class MailClientService {
       attachments: [
         {
           filename: 'MuniLogo',
-          path: './src/mail-client/utils/MuniLogo.jpeg',
+          path: './src/mail-client/assets/MuniLogo.jpeg',
           cid: 'logoImage',
         },
       ],

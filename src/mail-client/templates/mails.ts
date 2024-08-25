@@ -221,7 +221,7 @@ export async function RecoverPasswordMail(ResetPasswordURL: string) {
             </p>
             <a href="${ResetPasswordURL}">Recuperar Contraseña</a>
             <p>
-              Este enlace es válido por 24 horas. Si necesita asistencia
+              Este enlace es válido por 1 hora y un solo uso. Si necesita asistencia
               adicional, no dude en contactarnos.
             </p>
           </div>

@@ -42,8 +42,8 @@ export class Employee {
   @Column()
   AvailableVacationDays: number;
 
-  @Column()
-  GrossSalary: number;
+  // @Column()
+  // GrossSalary: number;
 
   @OneToOne(() => User, (user) => user.Employee)
   User: User;

@@ -59,10 +59,10 @@ export class CreateEmployeeDto {
   @IsInt()
   AvailableVacationDays: number;
 
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsNumber()
-  GrossSalary: number;
+  // @ApiProperty()
+  // @IsNotEmpty()
+  // @IsNumber()
+  // GrossSalary: number;
 
   @ApiProperty()
   @IsInt()

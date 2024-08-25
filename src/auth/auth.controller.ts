@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, Put, Req, UseGuards } from '@nestjs/common';
 //import { Request } from 'express';
 import { AuthService } from './auth.service';
 import { ApiTags } from '@nestjs/swagger';
@@ -6,6 +6,8 @@ import { LoginDto } from './dto/login-dto';
 import { AuthGuard } from './guards/auth.guard';
 import { ChangePasswordDto } from './dto/change-password-dto';
 import { ForgotPasswordDto } from './dto/forgot-password-dto';
+import { ResetPasswordDto } from './dto/reset-password-dto';
+import { TokenGuard } from './guards/token.guard';
 // import { RegisterDto } from './dto/register-dto';
 // import { AuthGuard } from './guards/auth.guard';
 // import { RolesGuard } from './guards/roles.guard';
@@ -33,10 +35,21 @@ export class AuthController {
     );
   }
 
+  @UseGuards(AuthGuard, TokenGuard)
+  @Put('reset-password')
+  async resetPassword(@Req() req, @Body() resetPasswordDto: ResetPasswordDto) {
+    return this.authService.resetPassword(
+      req.user.id,
+      resetPasswordDto.newPassword,
+    );
+  }
+
   @Post('forgot-password')
   async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
     return this.authService.forgotPassword(forgotPasswordDto.Email);
   }
+
+  //Crear endpoind para cambiar contraseña.
 
   // @Roles(Role.Admin)
   // @UseGuards(AuthGuard, RolesGuard)

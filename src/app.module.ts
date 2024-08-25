@@ -7,6 +7,7 @@ import { UsersModule } from './users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 //import { Role } from './roles/entities/role.entity';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { CacheModule } from '@nestjs/cache-manager';
 
 //import { MailClientModule } from './mail-client/mail-client.module';
 import { EmployeesModule } from './employees/employees.module';
@@ -42,6 +43,7 @@ import { GendersModule } from './genders/genders.module';
     MaritalStatusModule,
     GendersModule,
     GendersModule,
+    CacheModule.register({ isGlobal: true }),
   ],
 
   // imports: [
