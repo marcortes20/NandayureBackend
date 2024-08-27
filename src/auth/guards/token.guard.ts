@@ -20,13 +20,10 @@ export class TokenGuard implements CanActivate {
     const tokenWasUsed = await this.cacheManager.get(tokenId);
 
     if (tokenWasUsed) {
-      console.log('Token ya usado');
-      console.log(tokenWasUsed);
-      throw new UnauthorizedException('El token ya venció o ya fue usado');
+      throw new UnauthorizedException('El link ya venció o fue usado');
     }
-
     // Marca el token como usado
-    await this.cacheManager.set(tokenId, 'used'); // TTL ajustable según tus necesidades
+    await this.cacheManager.set(tokenId, 'used', 600000);
 
     return true;
   }
