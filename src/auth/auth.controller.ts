@@ -66,4 +66,13 @@ export class AuthController {
   // async mail() {
   //   return await this.authService.sendMail();
   // }
+
+  // @Post('test')
+  // async mail() {
+  //   try {
+  //     throw new ForbiddenException('mala');
+  //   } catch (err) {
+  //     throw err;
+  //   }
+  // }
 }
