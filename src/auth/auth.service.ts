@@ -62,6 +62,7 @@ export class AuthService {
 
       return {
         name: userToLogin.Employee.Name,
+        employeeId: userToLogin.EmployeeId,
         surname1: userToLogin.Employee.Surname1,
         surname2: userToLogin.Employee.Surname2,
         email: userToLogin.Employee.Email,
