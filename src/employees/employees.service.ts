@@ -7,7 +7,7 @@ import {
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
 import { Employee } from './entities/employee.entity';
-import { DataSource, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 //import { User } from 'src/users/entities/user.entity';
 import { UsersService } from 'src/users/users.service';
@@ -18,7 +18,7 @@ export class EmployeesService {
     @InjectRepository(Employee)
     private readonly employeeRepository: Repository<Employee>,
     private readonly userService: UsersService,
-    private dataSource: DataSource,
+    //private dataSource: DataSource,
   ) {}
 
   async create(createEmployeeDto: CreateEmployeeDto) {
@@ -68,7 +68,13 @@ export class EmployeesService {
   }
 
   async findAll() {
-    return await this.employeeRepository.find();
+    try {
+      return await this.employeeRepository.find();
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'error al obtener información de los empleados',
+      );
+    }
   }
 
   async findOneById(EmployeeId: number) {

@@ -14,6 +14,8 @@ import { EmployeesModule } from './employees/employees.module';
 import { MaritalStatusModule } from './marital-status/marital-status.module';
 
 import { GendersModule } from './genders/genders.module';
+import { MunicipalityModule } from './municipality/municipality.module';
+import { JobPositionsModule } from './job-positions/job-positions.module';
 
 @Module({
   imports: [
@@ -44,6 +46,8 @@ import { GendersModule } from './genders/genders.module';
     GendersModule,
     GendersModule,
     CacheModule.register({ isGlobal: true }),
+    MunicipalityModule,
+    JobPositionsModule,
   ],
 
   // imports: [
