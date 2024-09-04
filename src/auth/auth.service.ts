@@ -32,9 +32,9 @@ export class AuthService {
     try {
       const userToLogin = await this.userService.findOne(EmployeeId);
       if (!userToLogin) {
-        throw new UnauthorizedException({
-          error: 'No existe ese número de identificacion en el sistema',
-        });
+        throw new UnauthorizedException(
+          'No existe ese número de identificacion en el sistema',
+        );
       }
 
       // const IsCorrectPassword = await bcrypt.compare(
@@ -48,9 +48,7 @@ export class AuthService {
       );
 
       if (!IsCorrectPassword) {
-        throw new UnauthorizedException({
-          error: 'Contraseña incorrecta',
-        });
+        throw new UnauthorizedException('Contraseña incorrecta');
       }
 
       const rolesNames = userToLogin.Roles?.map((role) => role.RoleName);
@@ -68,14 +66,11 @@ export class AuthService {
         access_token: await this.jwtService.signAsync(payload),
       };
     } catch (error) {
-      console.error('Error:', error);
       if (error instanceof UnauthorizedException) {
         throw error; // Relanza la excepción específica
       }
       // Manejo de cualquier otra excepción no prevista
-      throw new InternalServerErrorException({
-        error: 'Error en el inicio de sesión: ' + error.message,
-      });
+      throw new InternalServerErrorException('Error en el inicio de sesión: ');
     }
   }
 
