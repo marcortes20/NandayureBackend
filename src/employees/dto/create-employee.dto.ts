@@ -12,7 +12,7 @@ export class CreateEmployeeDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsNumber()
-  EmployeeId: number;
+  id: number;
 
   @ApiProperty()
   @IsNotEmpty()

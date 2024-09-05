@@ -1,15 +1,16 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { CreateMaritalStatusDto } from './dto/create-marital-status.dto';
 import { UpdateMaritalStatusDto } from './dto/update-marital-status.dto';
-import { InjectRepository } from '@nestjs/typeorm';
-import { MaritalStatus } from './entities/marital-status.entity';
-import { Repository } from 'typeorm';
+import { MaritalStatusRepository } from './repository/marital-status.repository';
 
 @Injectable()
 export class MaritalStatusService {
   constructor(
-    @InjectRepository(MaritalStatus)
-    private readonly maritarStatusRepository: Repository<MaritalStatus>,
+    private readonly maritarStatusRepository: MaritalStatusRepository,
   ) {}
 
   async onModuleInit() {
@@ -58,7 +59,9 @@ export class MaritalStatusService {
   }
   async create(createMaritalStatusDto: CreateMaritalStatusDto) {
     try {
-      const existStatus = await this.findOneByName(createMaritalStatusDto.Name);
+      const existStatus = await this.maritarStatusRepository.findByCondition({
+        where: { Name: createMaritalStatusDto.Name },
+      });
 
       if (existStatus) {
         return {
@@ -81,15 +84,28 @@ export class MaritalStatusService {
   }
 
   findAll() {
-    return this.maritarStatusRepository.find();
+    return this.maritarStatusRepository.findAll();
   }
 
-  findOneByName(Name: string) {
-    return this.maritarStatusRepository.findOneBy({ Name });
+  async findOneById(id: number) {
+    return this.maritarStatusRepository.findOneById(id);
   }
+
+  // findOneByName(Name: string) {
+  //   return this.maritarStatusRepository.findOneBy();
+  // }
 
   update(id: number, updateMaritalStatusDto: UpdateMaritalStatusDto) {
-    return updateMaritalStatusDto;
+    const maritalStatusToEdit = this.maritarStatusRepository.findOneById(id);
+    if (!maritalStatusToEdit) {
+      throw new BadRequestException({
+        error: 'No existe el usuario con número de cédula: ' + id,
+      });
+    }
+    return this.maritarStatusRepository.save({
+      ...maritalStatusToEdit,
+      ...updateMaritalStatusDto,
+    });
   }
 
   remove(id: number) {

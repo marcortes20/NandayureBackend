@@ -8,7 +8,7 @@ import {
 import { BaseInterfaceRepository } from '../interface/base.interface';
 
 interface HasId {
-  id: number;
+  id: number | string;
 }
 
 export abstract class BaseAbstractRepostitory<T extends HasId>
@@ -18,12 +18,8 @@ export abstract class BaseAbstractRepostitory<T extends HasId>
   protected constructor(entity: Repository<T>) {
     this.entity = entity;
   }
-  test() {
-    return 'algo sale';
-  }
 
   public async save(data: DeepPartial<T>): Promise<T> {
-    await console.log('entra');
     return await this.entity.save(data);
   }
 
@@ -32,7 +28,6 @@ export abstract class BaseAbstractRepostitory<T extends HasId>
   }
 
   public create(data: DeepPartial<T>): T {
-    console.log(data);
     return this.entity.create(data);
   }
 

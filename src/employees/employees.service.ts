@@ -6,92 +6,89 @@ import {
 } from '@nestjs/common';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
-import { Employee } from './entities/employee.entity';
-import { Repository } from 'typeorm';
-import { InjectRepository } from '@nestjs/typeorm';
-//import { User } from 'src/users/entities/user.entity';
 import { UsersService } from 'src/users/users.service';
+import { EmployeeRepository } from './repository/employee.repository';
+import { MaritalStatusService } from 'src/marital-status/marital-status.service';
+import { GendersService } from 'src/genders/genders.service';
+import { DataSource } from 'typeorm';
 
 @Injectable()
 export class EmployeesService {
   constructor(
-    @InjectRepository(Employee)
-    private readonly employeeRepository: Repository<Employee>,
+    private readonly employeeRepository: EmployeeRepository,
     private readonly userService: UsersService,
-    //private dataSource: DataSource,
+    private readonly maritalStatusService: MaritalStatusService,
+    private readonly genderService: GendersService,
+    private dataSource: DataSource,
   ) {}
 
   async create(createEmployeeDto: CreateEmployeeDto) {
-    //AGREGAR TRANSACCIONES
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
     try {
-      const existEmployee = await this.findOneById(
-        createEmployeeDto.EmployeeId,
-      );
-      if (existEmployee != null) {
-        throw new ConflictException({
-          error: 'Ya existe un empleado con ese número de identificación',
-        });
-      }
+      await this.validateData(createEmployeeDto);
 
-      const existEmployeeWithMail = await this.findOneByEmail(
-        createEmployeeDto.Email,
-      );
-
-      if (existEmployeeWithMail != null) {
-        throw new ConflictException({
-          error:
-            'Ya existe un registro con esa direccion de correo electrinico',
-        });
-      }
-
-      const newEmployee =
-        await this.employeeRepository.create(createEmployeeDto);
-
-      const created = await this.employeeRepository.save(newEmployee);
-
-      await this.userService.Create({
-        EmployeeId: createEmployeeDto.EmployeeId,
-        Email: createEmployeeDto.Email,
+      const newEmployee = this.employeeRepository.create({
+        ...createEmployeeDto,
+        Gender: { id: createEmployeeDto.GenderId },
+        MaritalStatus: { id: createEmployeeDto.MaritalStatusId },
       });
+
+      const created = await queryRunner.manager.save(newEmployee);
+
+      await this.userService.create(
+        {
+          id: created.id,
+          Email: createEmployeeDto.Email,
+        },
+        queryRunner,
+      );
+      await queryRunner.commitTransaction();
 
       return created;
     } catch (error) {
-      console.error('Error:', error);
+      await queryRunner.rollbackTransaction();
       if (error instanceof ConflictException) {
-        throw error; // Relanza la excepción específica
+        throw error;
       }
       // Manejo de cualquier otra excepción no prevista
       throw new InternalServerErrorException({
-        error: 'Error en la creacion de el usuario: ' + error.message,
+        error: 'Error en la creación del usuario: ' + error.message,
       });
+    } finally {
+      await queryRunner.release();
     }
   }
 
   async findAll() {
     try {
-      return await this.employeeRepository.find();
+      return await this.employeeRepository.findAll();
     } catch (error) {
       throw new InternalServerErrorException(
-        'error al obtener información de los empleados',
+        error,
+        'Error al obtener información de los empleados',
       );
     }
   }
 
-  async findOneById(EmployeeId: number) {
-    return await this.employeeRepository.findOneBy({ EmployeeId });
-  }
-
-  async findOneByEmail(Email: string) {
-    return await this.employeeRepository.findOneBy({ Email });
-  }
-
-  async update(EmployeeId: number, updateEmployeeDto: UpdateEmployeeDto) {
-    const employeeToEdit = await this.employeeRepository.findOneBy({
-      EmployeeId,
+  async findOneById(id: number) {
+    return await this.employeeRepository.findOne({
+      where: { id },
     });
+  }
+
+  async findOneByEmail(email: string) {
+    return await this.employeeRepository.findOne({
+      where: { Email: email },
+    });
+  }
+
+  async update(id: number, updateEmployeeDto: UpdateEmployeeDto) {
+    const employeeToEdit = await this.findOneById(id);
     if (!employeeToEdit) {
       throw new BadRequestException({
-        errror: 'No existe el usuario con numro de cédula:' + EmployeeId,
+        error: 'No existe el usuario con número de cédula: ' + id,
       });
     }
 
@@ -101,7 +98,52 @@ export class EmployeesService {
     });
   }
 
-  async remove(EmployeeId: number) {
-    return this.employeeRepository.softDelete({ EmployeeId });
+  private async validateData(dto: CreateEmployeeDto) {
+    await this.validateEmployeeId(dto.id);
+    await this.validateEmployeeEmail(dto.Email);
+    await this.validateMaritalStatus(dto.MaritalStatusId);
+    await this.validateGender(dto.GenderId);
   }
+
+  private async validateEmployeeId(id: number) {
+    const existEmployee = await this.findOneById(id);
+    if (existEmployee) {
+      throw new ConflictException({
+        error: 'Ya existe un empleado con ese número de identificación',
+      });
+    }
+  }
+
+  private async validateEmployeeEmail(email: string) {
+    const existEmployeeWithMail = await this.findOneByEmail(email);
+    if (existEmployeeWithMail) {
+      throw new ConflictException({
+        error: 'Ya existe un registro con esa dirección de correo electrónico',
+      });
+    }
+  }
+
+  private async validateMaritalStatus(maritalStatusId: number) {
+    const existMaritalStatus =
+      await this.maritalStatusService.findOneById(maritalStatusId);
+    if (!existMaritalStatus) {
+      throw new ConflictException({
+        error: 'No existe el estado civil seleccionado',
+      });
+    }
+  }
+
+  private async validateGender(genderId: number) {
+    const existGender = await this.genderService.findOneById(genderId);
+    if (!existGender) {
+      throw new ConflictException({
+        error: 'No existe el género seleccionado',
+      });
+    }
+  }
+
+  // async remove(EmployeeId: number) {
+  //   // return this.employeeRepository.softDelete({ EmployeeId });
+  //   // this.userService.
+  // }
 }
