@@ -30,17 +30,12 @@ export class AuthService {
 
   async login({ EmployeeId, Password }: LoginDto) {
     try {
-      const userToLogin = await this.userService.findOne(EmployeeId);
+      const userToLogin = await this.userService.findOneById(EmployeeId);
       if (!userToLogin) {
         throw new UnauthorizedException(
           'No existe ese número de identificacion en el sistema',
         );
       }
-
-      // const IsCorrectPassword = await bcrypt.compare(
-      //   Password,
-      //   userToLogin.Password,
-      // );
 
       const IsCorrectPassword = await this.comparePasswords(
         Password,
@@ -53,14 +48,14 @@ export class AuthService {
 
       const rolesNames = userToLogin.Roles?.map((role) => role.RoleName);
       const payload = {
-        id: userToLogin.EmployeeId,
+        id: userToLogin.id,
         roles: rolesNames,
         jti: uuidv4(),
       };
 
       return {
         name: userToLogin.Employee.Name,
-        employeeId: userToLogin.EmployeeId,
+        employeeId: userToLogin.id,
         surname1: userToLogin.Employee.Surname1,
         surname2: userToLogin.Employee.Surname2,
         email: userToLogin.Employee.Email,
@@ -69,6 +64,9 @@ export class AuthService {
     } catch (error) {
       if (error instanceof UnauthorizedException) {
         throw error; // Relanza la excepción específica
+      }
+      if (error instanceof InternalServerErrorException) {
+        throw error;
       }
       // Manejo de cualquier otra excepción no prevista
       throw new InternalServerErrorException('Error en el inicio de sesión: ');
@@ -110,7 +108,7 @@ export class AuthService {
     const userToEdit = await this.userService.findOneByEmail(Email);
     if (userToEdit) {
       const payload = await {
-        id: userToEdit.EmployeeId,
+        id: userToEdit.id,
         Email: userToEdit.Employee.Email,
         jti: uuidv4(),
       };

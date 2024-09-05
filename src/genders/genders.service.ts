@@ -1,16 +1,15 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { CreateGenderDto } from './dto/create-gender.dto';
 import { UpdateGenderDto } from './dto/update-gender.dto';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Gender } from './entities/gender.entity';
+import { GenderRepository } from './repository/gender.repository';
 
 @Injectable()
 export class GendersService {
-  constructor(
-    @InjectRepository(Gender)
-    private readonly gendersService: Repository<Gender>,
-  ) {}
+  constructor(private readonly gendersService: GenderRepository) {}
 
   async onModuleInit() {
     const defaulGenres: CreateGenderDto[] = [
@@ -52,19 +51,31 @@ export class GendersService {
     }
   }
 
-  findAll() {
-    return this.gendersService.find();
+  async findAll() {
+    return this.gendersService.findAll();
   }
 
-  findOneByName(Name: string) {
-    return this.gendersService.findOneBy({ Name });
+  async findOneById(id: number) {
+    return this.gendersService.findOneById(id);
   }
 
-  update(id: number, updateGenderDto: UpdateGenderDto) {
-    return `This action updates a #${id} gender`;
+  async findOneByName(Name: string) {
+    return this.gendersService.findByCondition({ where: { Name: Name } });
   }
 
-  remove(id: number) {
+  async update(id: number, updateGenderDto: UpdateGenderDto) {
+    const genreToEdit = await this.gendersService.findOneById(id);
+
+    if (!genreToEdit) {
+      throw new BadRequestException({
+        error: 'No existe el id del genero: ' + id,
+      });
+    }
+
+    return this.gendersService.save({ ...genreToEdit, ...updateGenderDto });
+  }
+
+  async remove(id: number) {
     return `This action removes a #${id} gender`;
   }
 }
