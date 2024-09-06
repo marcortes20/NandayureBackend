@@ -1,26 +1,54 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateOvertimeDto } from './dto/create-overtime.dto';
 import { UpdateOvertimeDto } from './dto/update-overtime.dto';
+import { OvertimeRepository } from './repository/overtime.repository';
+import { EmployeesService } from 'src/employees/employees.service';
 
 @Injectable()
 export class OvertimesService {
-  create(createOvertimeDto: CreateOvertimeDto) {
-    return 'This action adds a new overtime';
+  constructor(
+    private readonly overtimeRepository: OvertimeRepository,
+    private readonly employeeRepository: EmployeesService,
+  ) {}
+
+  async create(createOvertimeDto: CreateOvertimeDto) {
+    const employeeExist = await this.employeeRepository.findOneById(
+      createOvertimeDto.EmployeeId,
+    );
+
+    if (!employeeExist) {
+      throw new NotFoundException('No existe el empleado seleccionado');
+    }
+    const newOvertime = this.overtimeRepository.create(createOvertimeDto);
+    return await this.overtimeRepository.save(newOvertime);
   }
 
-  findAll() {
-    return `This action returns all overtimes`;
+  async findAll() {
+    return await this.overtimeRepository.findAll();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} overtime`;
+  async findOne(id: number) {
+    return await this.overtimeRepository.findOneById(id);
   }
 
-  update(id: number, updateOvertimeDto: UpdateOvertimeDto) {
-    return `This action updates a #${id} overtime`;
+  async update(id: number, updateOvertimeDto: UpdateOvertimeDto) {
+    const overtimeToEdit = await this.overtimeRepository.findOneById(id);
+    if (!overtimeToEdit) {
+      throw new NotFoundException('No se encontró el registro a editar');
+    }
+
+    return await this.overtimeRepository.save({
+      ...overtimeToEdit,
+      ...updateOvertimeDto,
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} overtime`;
+  async remove(id: number) {
+    const overtimeToRemove = await this.overtimeRepository.findOneById(id);
+    if (!overtimeToRemove) {
+      throw new NotFoundException('No se encontró el registro a eliminar');
+    }
+
+    return await this.overtimeRepository.remove(overtimeToRemove);
   }
 }

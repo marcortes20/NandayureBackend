@@ -1,8 +1,17 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { AnnuitiesService } from './annuities.service';
 import { CreateAnnuityDto } from './dto/create-annuity.dto';
 import { UpdateAnnuityDto } from './dto/update-annuity.dto';
-
+import { ApiTags } from '@nestjs/swagger';
+@ApiTags('annuites')
 @Controller('annuities')
 export class AnnuitiesController {
   constructor(private readonly annuitiesService: AnnuitiesService) {}

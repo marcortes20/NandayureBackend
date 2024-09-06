@@ -1,11 +1,22 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { AttendanceStatusService } from './attendance-status.service';
 import { CreateAttendanceStatusDto } from './dto/create-attendance-status.dto';
 import { UpdateAttendanceStatusDto } from './dto/update-attendance-status.dto';
-
+import { ApiTags } from '@nestjs/swagger';
+@ApiTags('attendance-status')
 @Controller('attendance-status')
 export class AttendanceStatusController {
-  constructor(private readonly attendanceStatusService: AttendanceStatusService) {}
+  constructor(
+    private readonly attendanceStatusService: AttendanceStatusService,
+  ) {}
 
   @Post()
   create(@Body() createAttendanceStatusDto: CreateAttendanceStatusDto) {
@@ -23,7 +34,10 @@ export class AttendanceStatusController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAttendanceStatusDto: UpdateAttendanceStatusDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateAttendanceStatusDto: UpdateAttendanceStatusDto,
+  ) {
     return this.attendanceStatusService.update(+id, updateAttendanceStatusDto);
   }
 
