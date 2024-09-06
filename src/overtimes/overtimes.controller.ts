@@ -1,8 +1,17 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { OvertimesService } from './overtimes.service';
 import { CreateOvertimeDto } from './dto/create-overtime.dto';
 import { UpdateOvertimeDto } from './dto/update-overtime.dto';
-
+import { ApiTags } from '@nestjs/swagger';
+@ApiTags('overtimes')
 @Controller('overtimes')
 export class OvertimesController {
   constructor(private readonly overtimesService: OvertimesService) {}
@@ -23,7 +32,10 @@ export class OvertimesController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateOvertimeDto: UpdateOvertimeDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateOvertimeDto: UpdateOvertimeDto,
+  ) {
     return this.overtimesService.update(+id, updateOvertimeDto);
   }
 

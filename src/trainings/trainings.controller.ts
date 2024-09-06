@@ -10,7 +10,8 @@ import {
 import { TrainingsService } from './trainings.service';
 import { CreateTrainingDto } from './dto/create-training.dto';
 import { UpdateTrainingDto } from './dto/update-training.dto';
-
+import { ApiTags } from '@nestjs/swagger';
+@ApiTags('trainings')
 @Controller('trainings')
 export class TrainingsController {
   constructor(private readonly trainingsService: TrainingsService) {}

@@ -57,7 +57,7 @@ export class UsersService {
     try {
       const user = await this.userRepository.findOne({
         where: { id },
-        relations: ['Employee'],
+        relations: ['Employee', 'Roles'],
       });
       if (!user) {
         throw new NotFoundException('Usuario no encontrado');

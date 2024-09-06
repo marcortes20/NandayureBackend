@@ -87,9 +87,9 @@ export class EmployeesService {
   async update(id: number, updateEmployeeDto: UpdateEmployeeDto) {
     const employeeToEdit = await this.findOneById(id);
     if (!employeeToEdit) {
-      throw new BadRequestException({
-        error: 'No existe el usuario con número de cédula: ' + id,
-      });
+      throw new BadRequestException(
+        'No existe el usuario con número de cédula: ',
+      );
     }
 
     return this.employeeRepository.save({

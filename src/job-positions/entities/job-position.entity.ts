@@ -12,13 +12,13 @@ export class JobPosition {
   @Column()
   Description: string;
 
-  @Column('decimal', { precision: 10, scale: 2 })
+  @Column('decimal', { precision: 10, scale: 4 })
   baseSalary: number;
 
-  @Column('decimal', { precision: 10, scale: 2 })
+  @Column('decimal', { precision: 10, scale: 4 })
   globalSalary: number;
 
-  @Column('decimal', { precision: 10, scale: 2 })
+  @Column('decimal', { precision: 10, scale: 4 })
   extrafees: number;
 
   @OneToMany(() => Employee, (employee) => employee.JopPosition)
