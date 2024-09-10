@@ -47,7 +47,6 @@ export class AuthService {
       }
 
       const rolesNames = userToLogin.Roles?.map((role) => role.RoleName);
-      console.log(rolesNames);
       const payload = {
         id: userToLogin.id,
         roles: rolesNames,
