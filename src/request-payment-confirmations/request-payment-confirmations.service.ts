@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateRequestPaymentConfirmationDto } from './dto/create-request-payment-confirmation.dto';
 import { UpdateRequestPaymentConfirmationDto } from './dto/update-request-payment-confirmation.dto';
-import { RequestPaymentConfirmationRepository } from './repository/RequestSalaryConfirmation.repository';
+import { RequestPaymentConfirmationRepository } from './repository/RequestPaymentConfirmation.repository';
 
 @Injectable()
 export class RequestPaymentConfirmationsService {

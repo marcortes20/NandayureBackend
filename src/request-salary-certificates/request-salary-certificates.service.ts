@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateRequestSalaryCertificateDto } from './dto/create-request-salary-certificate.dto';
 import { UpdateRequestSalaryCertificateDto } from './dto/update-request-salary-certificate.dto';
-import { RequestSalaryCertificateRepository } from './repository/RequestSalaryCertificate.Interface';
+import { RequestSalaryCertificateRepository } from './repository/RequestSalaryCertificate.repository';
 
 @Injectable()
 export class RequestSalaryCertificatesService {

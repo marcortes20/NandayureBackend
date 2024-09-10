@@ -3,7 +3,7 @@ import { RequestSalaryCertificatesService } from './request-salary-certificates.
 import { RequestSalaryCertificatesController } from './request-salary-certificates.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { RequestSalaryCertificate } from './entities/request-salary-certificate.entity';
-import { RequestSalaryCertificateRepository } from './repository/RequestSalaryCertificate.Interface';
+import { RequestSalaryCertificateRepository } from './repository/RequestSalaryCertificate.repository';
 
 @Module({
   imports: [TypeOrmModule.forFeature([RequestSalaryCertificate])],
