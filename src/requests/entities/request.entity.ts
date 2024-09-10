@@ -1,4 +1,5 @@
 import { Employee } from 'src/employees/entities/employee.entity';
+import { RequestPaymentConfirmation } from 'src/request-payment-confirmations/entities/request-payment-confirmation.entity';
 import { RequestSalaryCertificate } from 'src/request-salary-certificates/entities/request-salary-certificate.entity';
 import { RequestVacation } from 'src/request-vacation/entities/request-vacation.entity';
 import { RequestsState } from 'src/requests-state/entities/requests-state.entity';
@@ -46,4 +47,11 @@ export class Request {
     { nullable: true },
   )
   RequestSalaryCertificate: RequestSalaryCertificate;
+
+  @OneToOne(
+    () => RequestPaymentConfirmation,
+    (requestPaymentConfirmation) => requestPaymentConfirmation.Request,
+    { nullable: true },
+  )
+  RequestPaymentConfirmation: RequestPaymentConfirmation;
 }
