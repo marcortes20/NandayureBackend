@@ -1,11 +1,22 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { RequestVacationService } from './request-vacation.service';
 import { CreateRequestVacationDto } from './dto/create-request-vacation.dto';
 import { UpdateRequestVacationDto } from './dto/update-request-vacation.dto';
-
+import { ApiTags } from '@nestjs/swagger';
+@ApiTags('request-vacation')
 @Controller('request-vacation')
 export class RequestVacationController {
-  constructor(private readonly requestVacationService: RequestVacationService) {}
+  constructor(
+    private readonly requestVacationService: RequestVacationService,
+  ) {}
 
   @Post()
   create(@Body() createRequestVacationDto: CreateRequestVacationDto) {
@@ -23,7 +34,10 @@ export class RequestVacationController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateRequestVacationDto: UpdateRequestVacationDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateRequestVacationDto: UpdateRequestVacationDto,
+  ) {
     return this.requestVacationService.update(+id, updateRequestVacationDto);
   }
 

@@ -109,7 +109,6 @@ export class AuthService {
     const userToEdit = await this.userService.findOneByEmail(Email);
     if (userToEdit) {
       const payload = await {
-        id: userToEdit.id,
         Email: userToEdit.Employee.Email,
         jti: uuidv4(),
       };
@@ -143,12 +142,4 @@ export class AuthService {
 
     return this.userService.updatePassword(EmployeeId, newPassword);
   }
-  // async sendMail() {
-  //   return this.mailClient.sendRecoverPasswordMail({
-  //     to: 'marcortes.stives@gmail.com',
-  //     subject: 'welcome',
-  //     message: 'welcomea',
-  //     RecoverPasswordURL: 'https:recover',
-  //   });
-  // }
 }

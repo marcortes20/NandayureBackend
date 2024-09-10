@@ -1,26 +1,51 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateRequestVacationDto } from './dto/create-request-vacation.dto';
 import { UpdateRequestVacationDto } from './dto/update-request-vacation.dto';
+import { RequestVacationRepository } from './repository/Request-Vacation.repository';
 
 @Injectable()
 export class RequestVacationService {
-  create(createRequestVacationDto: CreateRequestVacationDto) {
-    return 'This action adds a new requestVacation';
+  constructor(
+    private readonly requestVacationRepository: RequestVacationRepository,
+  ) {}
+
+  async create(createRequestVacationDto: CreateRequestVacationDto) {
+    const newVacationRequest = this.requestVacationRepository.create(
+      createRequestVacationDto,
+    );
+
+    return await this.requestVacationRepository.save(newVacationRequest);
   }
 
-  findAll() {
-    return `This action returns all requestVacation`;
+  async findAll() {
+    return await this.requestVacationRepository.findAll();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} requestVacation`;
+  async findOne(id: number) {
+    return await this.requestVacationRepository.findOneById(id);
   }
 
-  update(id: number, updateRequestVacationDto: UpdateRequestVacationDto) {
-    return `This action updates a #${id} requestVacation`;
+  async update(id: number, updateRequestVacationDto: UpdateRequestVacationDto) {
+    const requestToEdit = await this.requestVacationRepository.findOneById(id);
+
+    if (!requestToEdit) {
+      throw new NotFoundException('Solicitud no encontrada');
+    }
+
+    return await this.requestVacationRepository.save({
+      ...requestToEdit,
+      ...updateRequestVacationDto,
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} requestVacation`;
+  async remove(id: number) {
+    const requestToRemove =
+      await this.requestVacationRepository.findOneById(id);
+
+    if (!requestToRemove) {
+      throw new NotFoundException('Solicitud no encontrada');
+    }
+
+    return await this.requestVacationRepository.remove(requestToRemove);
   }
 }
