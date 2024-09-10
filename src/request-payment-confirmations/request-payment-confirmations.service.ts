@@ -1,26 +1,56 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateRequestPaymentConfirmationDto } from './dto/create-request-payment-confirmation.dto';
 import { UpdateRequestPaymentConfirmationDto } from './dto/update-request-payment-confirmation.dto';
+import { RequestPaymentConfirmationRepository } from './repository/RequestSalaryConfirmation.repository';
 
 @Injectable()
 export class RequestPaymentConfirmationsService {
-  create(createRequestPaymentConfirmationDto: CreateRequestPaymentConfirmationDto) {
-    return 'This action adds a new requestPaymentConfirmation';
+  constructor(
+    private readonly paymentConfirmationRepository: RequestPaymentConfirmationRepository,
+  ) {}
+  async create(
+    createRequestPaymentConfirmationDto: CreateRequestPaymentConfirmationDto,
+  ) {
+    const newPaymentRequest = this.paymentConfirmationRepository.create(
+      createRequestPaymentConfirmationDto,
+    );
+
+    return await this.paymentConfirmationRepository.save(newPaymentRequest);
   }
 
-  findAll() {
-    return `This action returns all requestPaymentConfirmations`;
+  async findAll() {
+    return await this.paymentConfirmationRepository.findAll();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} requestPaymentConfirmation`;
+  async findOne(id: number) {
+    return await this.paymentConfirmationRepository.findOneById(id);
   }
 
-  update(id: number, updateRequestPaymentConfirmationDto: UpdateRequestPaymentConfirmationDto) {
-    return `This action updates a #${id} requestPaymentConfirmation`;
+  async update(
+    id: number,
+    updateRequestPaymentConfirmationDto: UpdateRequestPaymentConfirmationDto,
+  ) {
+    const paymentRequestToEdit =
+      await this.paymentConfirmationRepository.findOneById(id);
+
+    if (!paymentRequestToEdit) {
+      throw new NotFoundException('No se encontró la solicitud a editar');
+    }
+
+    return await this.paymentConfirmationRepository.save({
+      ...paymentRequestToEdit,
+      ...updateRequestPaymentConfirmationDto,
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} requestPaymentConfirmation`;
+  async remove(id: number) {
+    const paymentRequestToRemove =
+      await this.paymentConfirmationRepository.findOneById(id);
+
+    if (!paymentRequestToRemove) {
+      throw new NotFoundException('No se encontró la solicitud a eliminar');
+    }
+
+    return this.paymentConfirmationRepository.remove(paymentRequestToRemove);
   }
 }

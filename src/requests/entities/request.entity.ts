@@ -1,4 +1,5 @@
 import { Employee } from 'src/employees/entities/employee.entity';
+import { RequestSalaryCertificate } from 'src/request-salary-certificates/entities/request-salary-certificate.entity';
 import { RequestVacation } from 'src/request-vacation/entities/request-vacation.entity';
 import { RequestsState } from 'src/requests-state/entities/requests-state.entity';
 import {
@@ -38,4 +39,11 @@ export class Request {
     { nullable: true },
   )
   RequestVacation: RequestVacation;
+
+  @OneToOne(
+    () => RequestSalaryCertificate,
+    (requestSalaryCertificate) => requestSalaryCertificate.Request,
+    { nullable: true },
+  )
+  RequestSalaryCertificate: RequestSalaryCertificate;
 }
