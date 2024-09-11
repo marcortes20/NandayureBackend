@@ -5,6 +5,7 @@ import { JobPosition } from 'src/job-positions/entities/job-position.entity';
 import { MaritalStatus } from 'src/marital-status/entities/marital-status.entity';
 import { Overtime } from 'src/overtimes/entities/overtime.entity';
 import { Request } from 'src/requests/entities/request.entity';
+import { Study } from 'src/studies/entities/study.entity';
 import { Training } from 'src/trainings/entities/training.entity';
 import { User } from 'src/users/entities/user.entity';
 
@@ -82,6 +83,10 @@ export class Employee {
   @ManyToMany(() => Training, (training) => training.employees)
   @JoinTable({ name: 'employee-training' })
   trainings: Training[];
+
+  @ManyToMany(() => Study, (study) => study.Employees)
+  @JoinTable({ name: 'employee-studies' })
+  Studies: Study[];
 
   @OneToMany(() => Annuity, (annuity) => annuity.employee)
   annuities: Annuity[];
