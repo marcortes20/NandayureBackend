@@ -1,97 +1,126 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
-// import { CreateUserDto } from './dto/create-user.dto';
-// import { UpdateUserDto } from './dto/update-user.dto';
-import { User } from './entities/user.entity';
-import { Repository } from 'typeorm';
-import { InjectRepository } from '@nestjs/typeorm';
-//import { RegisterDto } from 'src/auth/dto/register-dto';
-import { Role } from 'src/roles/entities/role.entity';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
+import { UserRepository } from './repository/user.repository';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
 import * as generatePassword from 'generate-password';
 import { MailClientService } from 'src/mail-client/mail-client.service';
+import { ConfigService } from '@nestjs/config';
+import { RolesService } from 'src/roles/roles.service';
+import { QueryRunner } from 'typeorm';
 
 @Injectable()
 export class UsersService {
   constructor(
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
+    private readonly userRepository: UserRepository,
     private readonly mailClient: MailClientService,
-
-    @InjectRepository(Role)
-    private readonly roleRepository: Repository<Role>,
+    private readonly configService: ConfigService,
+    private readonly roleRepository: RolesService,
   ) {}
 
-  // create(createUserDto: CreateUserDto) {
-  //   return 'This action adds a new user';
-  // }
-
-  // findAll() {
-  //   return `This action returns all users`;
-  // }
-
-  async findOneById(EmployeeId: number) {
+  async create(createUserDto: CreateUserDto, queryRunner: QueryRunner) {
     try {
-      return await this.userRepository.findOneBy({ EmployeeId });
-    } catch (error) {
-      throw new InternalServerErrorException({
-        error: 'Error: ' + error.message,
-      });
-    }
-  }
+      const initialRole = await this.findRoleByName('USER');
+      if (!initialRole) {
+        throw new InternalServerErrorException('El rol inicial no se encontró');
+      }
 
-  async findOne(EmployeeId: number) {
-    try {
-      const userToSearch = await this.userRepository.findOne({
-        relations: {
-          Roles: true,
-          Employee: true,
-        },
-        where: {
-          EmployeeId,
-        },
-      });
-      return userToSearch;
-    } catch (error) {
-      throw new InternalServerErrorException({
-        error: 'Error: ' + error.message,
-      });
-    }
-  }
+      const password = await this.generatePassword(8, true, true);
+      const hashedPassword = await this.hashPassword(password, 10);
 
-  async Create(createUserDto: CreateUserDto) {
-    try {
-      console.log(createUserDto);
-      const initialRole = await this.roleRepository.findOneBy({
-        RoleName: 'USER',
-      });
-      const password = await generatePassword.generate({
-        length: 5,
-        numbers: true,
-      });
-      const user = await this.userRepository.create({
-        EmployeeId: createUserDto.EmployeeId,
-        Password: await bcrypt.hash(password, 10),
+      const user = this.userRepository.create({
+        id: createUserDto.id,
+        Password: hashedPassword,
         Roles: [initialRole],
       });
-      await this.mailClient.sendMail({
-        to: createUserDto.Mail,
+      await this.mailClient.sendWelcomeMail({
+        to: createUserDto.Email,
         subject: 'Bienvenido',
-        message: `Su credenciales son: ${createUserDto.EmployeeId} y ${password}`,
+        LoginURL: await this.configService.get('FrontEndLoginURL'),
+        EmployeeId: createUserDto.id,
+        Password: password,
       });
+
+      return await queryRunner.manager.save(user);
+    } catch (error) {
+      console.log(error);
+      throw new InternalServerErrorException({
+        message: 'Error al crear el usuario: ' + error.message,
+      });
+    }
+  }
+
+  async findOneById(id: number) {
+    try {
+      const user = await this.userRepository.findOne({
+        where: { id },
+        relations: ['Employee', 'Roles'],
+      });
+      if (!user) {
+        throw new NotFoundException('Usuario no encontrado');
+      }
+      return user;
+    } catch (error) {
+      throw new InternalServerErrorException({
+        message: 'Error al encontrar el usuario: ' + error.message,
+      });
+    }
+  }
+
+  async findOneByEmail(email: string) {
+    try {
+      const user = await this.userRepository.findOne({
+        relations: ['Employee'],
+        where: {
+          Employee: {
+            Email: email,
+          },
+        },
+      });
+      if (!user) {
+        throw new NotFoundException('Usuario no encontrado');
+      }
+      return user;
+    } catch (error) {
+      throw new InternalServerErrorException({
+        message: 'Error al encontrar el usuario: ' + error.message,
+      });
+    }
+  }
+
+  async findRoleByName(name: string) {
+    return await this.roleRepository.findOneByName(name);
+  }
+
+  async generatePassword(
+    digits: number,
+    haveNumbers: boolean,
+    haveUppercase: boolean,
+  ) {
+    return generatePassword.generate({
+      length: digits,
+      numbers: haveNumbers,
+      uppercase: haveUppercase,
+    });
+  }
+
+  async hashPassword(password: string, salt: number) {
+    return await bcrypt.hash(password, salt);
+  }
+
+  async updatePassword(employeeId: number, newPassword: string) {
+    try {
+      const user = await this.findOneById(employeeId);
+      user.Password = await this.hashPassword(newPassword, 10);
       return await this.userRepository.save(user);
     } catch (error) {
       throw new InternalServerErrorException({
-        message: 'Error: ' + error.message,
+        message:
+          'Error al actualizar la contraseña del usuario: ' + error.message,
       });
     }
   }
-
-  // update(id: number, updateUserDto: UpdateUserDto) {
-  //   return `This action updates a #${id} user`;
-  // }
-
-  // remove(id: number) {
-  //   return `This action removes a #${id} user`;
-  // }
 }

@@ -4,9 +4,9 @@ import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 @Entity()
 export class MaritalStatus {
   @PrimaryGeneratedColumn()
-  MaritalStatusId: number;
+  id: number;
 
-  @Column()
+  @Column({ unique: true })
   Name: string;
 
   @Column()

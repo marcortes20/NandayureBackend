@@ -21,7 +21,7 @@ export class AuthGuard implements CanActivate {
     const token = this.extractTokenFromHeader(request);
 
     if (!token) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('Token invalido');
     }
 
     try {
@@ -30,7 +30,7 @@ export class AuthGuard implements CanActivate {
       });
       request.user = payload;
     } catch (error) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('Sesión expirada');
     }
 
     return true;

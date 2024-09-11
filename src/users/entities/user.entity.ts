@@ -9,28 +9,25 @@ import {
   JoinTable,
   ManyToMany,
   OneToOne,
-  PrimaryGeneratedColumn,
+  PrimaryColumn,
+  //PrimaryGeneratedColumn,
 } from 'typeorm';
 
 @Entity()
 export class User {
-  @PrimaryGeneratedColumn()
-  UserId: number;
-
-  @Column()
-  EmployeeId: number;
+  @PrimaryColumn()
+  id: number;
 
   @Column()
   @Exclude()
   Password: string;
 
   @OneToOne(() => Employee, (employee) => employee.User)
-  @JoinColumn({ name: 'EmployeeId' })
+  @JoinColumn({ name: 'id' })
   Employee: Employee;
 
   @ManyToMany(() => Role)
   @JoinTable({ name: 'user_roles' })
-  //@Transform(({ value }) => value.RoleName)
   Roles: Role[];
 
   @DeleteDateColumn()

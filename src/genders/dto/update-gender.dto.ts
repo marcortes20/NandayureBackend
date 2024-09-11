@@ -1,4 +1,9 @@
-import { PartialType } from '@nestjs/swagger';
-import { CreateGenderDto } from './create-gender.dto';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty, IsString } from 'class-validator';
 
-export class UpdateGenderDto extends PartialType(CreateGenderDto) {}
+export class UpdateGenderDto {
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  Name: string;
+}

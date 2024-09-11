@@ -2,18 +2,17 @@ import { ApiProperty } from '@nestjs/swagger';
 import {
   IsInt,
   IsNotEmpty,
-  IsOptional,
   IsString,
   IsNumber,
-  IsDateString,
   IsEmail,
+  IsDateString,
 } from 'class-validator';
 
 export class CreateEmployeeDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsNumber()
-  EmployeeId: number;
+  id: number;
 
   @ApiProperty()
   @IsNotEmpty()
@@ -43,7 +42,7 @@ export class CreateEmployeeDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsEmail()
-  Mail: string;
+  Email: string;
 
   @ApiProperty()
   @IsNotEmpty()
@@ -60,15 +59,10 @@ export class CreateEmployeeDto {
   @IsInt()
   AvailableVacationDays: number;
 
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsNumber()
-  GrossSalary: number;
-
-  @ApiProperty()
-  @IsOptional()
-  @IsInt()
-  UserId?: number;
+  // @ApiProperty()
+  // @IsNotEmpty()
+  // @IsNumber()
+  // GrossSalary: number;
 
   @ApiProperty()
   @IsInt()

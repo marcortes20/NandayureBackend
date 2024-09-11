@@ -1,15 +1,12 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { CreateRoleDto } from './dto/create-role.dto';
-//import { UpdateRoleDto } from './dto/update-role.dto';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Role } from './entities/role.entity';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource } from 'typeorm';
+import { RoleRepository } from './repository/role.repository';
 
 @Injectable()
 export class RolesService {
   constructor(
-    @InjectRepository(Role)
-    private readonly roleRepository: Repository<Role>,
+    private readonly roleRepository: RoleRepository,
     private dataSource: DataSource,
   ) {}
 
@@ -60,7 +57,9 @@ export class RolesService {
   }
 
   async findOneByName(RoleName: string) {
-    return this.roleRepository.findOneBy({ RoleName });
+    return this.roleRepository.findByCondition({
+      where: { RoleName: RoleName },
+    });
   }
 
   // update(id: number, updateRoleDto: UpdateRoleDto) {
