@@ -56,7 +56,8 @@ export class Employee {
   @Column()
   AvailableVacationDays: number;
 
-  @Column()
+  //por el momento es opcional
+  @Column({ nullable: true })
   JobPositionId: number;
 
   @Column()
@@ -65,10 +66,11 @@ export class Employee {
   @Column()
   MaritalStatusId: number;
 
-  @Column()
+  //por el momento es opcional
+  @Column({ nullable: true })
   DepartmentId: number;
-
-  @Column()
+  //por el momento es opcional
+  @Column({ nullable: true })
   EmbargoId: number;
 
   @OneToOne(() => User, (user) => user.Employee)
