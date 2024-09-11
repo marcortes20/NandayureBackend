@@ -21,6 +21,6 @@ export class JobPosition {
   @Column('decimal', { precision: 10, scale: 4 })
   extrafees: number;
 
-  @OneToMany(() => Employee, (employee) => employee.JopPosition)
+  @OneToMany(() => Employee, (employee) => employee.JobPosition)
   Employees: Employee;
 }

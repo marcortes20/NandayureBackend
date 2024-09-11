@@ -1,26 +1,45 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateEmbargoDto } from './dto/create-embargo.dto';
 import { UpdateEmbargoDto } from './dto/update-embargo.dto';
+import { EmbargoRepository } from './repository/embargoes.repository';
 
 @Injectable()
 export class EmbargoesService {
-  create(createEmbargoDto: CreateEmbargoDto) {
-    return 'This action adds a new embargo';
+  constructor(private readonly embargoRepository: EmbargoRepository) {}
+  async create(createEmbargoDto: CreateEmbargoDto) {
+    const newEmbargo = this.embargoRepository.create(createEmbargoDto);
+
+    return await this.embargoRepository.save(newEmbargo);
   }
 
-  findAll() {
-    return `This action returns all embargoes`;
+  async findAll() {
+    return await this.embargoRepository.findAll();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} embargo`;
+  async findOne(id: number) {
+    return await this.embargoRepository.findOneById(id);
   }
 
-  update(id: number, updateEmbargoDto: UpdateEmbargoDto) {
-    return `This action updates a #${id} embargo`;
+  async update(id: number, updateEmbargoDto: UpdateEmbargoDto) {
+    const embargoToEdit = await this.embargoRepository.findOneById(id);
+
+    if (!embargoToEdit) {
+      throw new NotFoundException('Registro no encontrado');
+    }
+
+    return await this.embargoRepository.save({
+      ...embargoToEdit,
+      ...updateEmbargoDto,
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} embargo`;
+  async remove(id: number) {
+    const embargoToRemove = await this.embargoRepository.findOneById(id);
+
+    if (!embargoToRemove) {
+      throw new NotFoundException('Registro no encontrado');
+    }
+
+    return await this.embargoRepository.remove(embargoToRemove);
   }
 }
