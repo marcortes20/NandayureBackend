@@ -1,5 +1,5 @@
 export async function WelcomeMail(
-  EmployeeId: number,
+  EmployeeId: string,
   Password: string,
   loginURL: string,
 ) {

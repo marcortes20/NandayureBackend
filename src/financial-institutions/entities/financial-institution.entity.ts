@@ -15,6 +15,12 @@ export class FinancialInstitution {
   @Column()
   TypeFinancialInstitutionId: number;
 
+  @Column()
+  name: string;
+
+  @Column()
+  percentage: number;
+
   @ManyToOne(
     () => TypeFinancialInstitution,
     (typeFinancialInstitution) =>

@@ -5,5 +5,5 @@ export class CreateRequestDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsNumber()
-  EmployeeId: number;
+  EmployeeId: string;
 }

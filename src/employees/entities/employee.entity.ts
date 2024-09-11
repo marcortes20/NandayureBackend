@@ -27,7 +27,7 @@ import {
 @Entity()
 export class Employee {
   @PrimaryColumn()
-  id: number;
+  id: string;
 
   @Column()
   Name: string;
@@ -77,8 +77,10 @@ export class Employee {
   @ManyToOne(() => MaritalStatus, (maritalStatus) => maritalStatus.employees)
   @JoinColumn({ name: 'MaritalStatusId' })
   MaritalStatus: MaritalStatus;
-
-  @ManyToOne(() => Department, (department) => department.Employees)
+  //relacion marcada como opcional para etapa de desarrrollo
+  @ManyToOne(() => Department, (department) => department.Employees, {
+    nullable: true,
+  })
   @JoinColumn({ name: 'DepartmentId' })
   Department: Department;
 
@@ -86,10 +88,14 @@ export class Employee {
   @JoinColumn({ name: 'GenderId' })
   Gender: Gender;
 
-  @ManyToOne(() => Embargo, (embargo) => embargo.employees)
+  //relacion marcada como opcional para etapa de desarrrollo
+  @ManyToOne(() => Embargo, (embargo) => embargo.employees, {
+    nullable: true,
+  })
   @JoinColumn({ name: 'EmbargoId' })
   embargo: Embargo;
 
+  //relacion marcada como opcional para etapa de desarrrollo
   @ManyToOne(() => JobPosition, (jobPosition) => jobPosition.Employees, {
     nullable: true,
   })

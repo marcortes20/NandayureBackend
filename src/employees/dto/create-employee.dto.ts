@@ -3,7 +3,6 @@ import {
   IsInt,
   IsNotEmpty,
   IsString,
-  IsNumber,
   IsEmail,
   IsDateString,
   IsOptional,
@@ -12,8 +11,8 @@ import {
 export class CreateEmployeeDto {
   @ApiProperty()
   @IsNotEmpty()
-  @IsNumber()
-  id: number;
+  @IsString()
+  id: string;
 
   @ApiProperty()
   @IsNotEmpty()
@@ -68,11 +67,13 @@ export class CreateEmployeeDto {
   @IsInt()
   GenderId?: number;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsInt()
   JobPositionId?: number;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsInt()
   DepartmentId?: number;
 

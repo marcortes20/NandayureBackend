@@ -70,7 +70,7 @@ export class EmployeesService {
     }
   }
 
-  async findOneById(id: number) {
+  async findOneById(id: string) {
     return await this.employeeRepository.findOne({
       where: { id },
     });
@@ -82,7 +82,7 @@ export class EmployeesService {
     });
   }
 
-  async update(id: number, updateEmployeeDto: UpdateEmployeeDto) {
+  async update(id: string, updateEmployeeDto: UpdateEmployeeDto) {
     const employeeToEdit = await this.findOneById(id);
     if (!employeeToEdit) {
       throw new BadRequestException(
@@ -123,7 +123,7 @@ export class EmployeesService {
     }
   }
 
-  private async validateEmployeeId(id: number) {
+  private async validateEmployeeId(id: string) {
     const existEmployee = await this.findOneById(id);
     if (existEmployee) {
       throw new ConflictException(

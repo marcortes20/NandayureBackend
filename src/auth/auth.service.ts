@@ -84,7 +84,7 @@ export class AuthService {
   }
 
   async changePassword(
-    EmployeeId: number,
+    EmployeeId: string,
     oldPassword: string,
     newPassword: string,
   ) {
@@ -133,7 +133,7 @@ export class AuthService {
     };
   }
 
-  async resetPassword(EmployeeId: number, newPassword: string) {
+  async resetPassword(EmployeeId: string, newPassword: string) {
     const userToEdit = await this.userService.findOneById(EmployeeId);
 
     if (!userToEdit) {
