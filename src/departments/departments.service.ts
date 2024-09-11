@@ -1,26 +1,45 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateDepartmentDto } from './dto/create-department.dto';
 import { UpdateDepartmentDto } from './dto/update-department.dto';
+import { DepartmentRepository } from './repository/Department.repository';
 
 @Injectable()
 export class DepartmentsService {
-  create(createDepartmentDto: CreateDepartmentDto) {
-    return 'This action adds a new department';
+  constructor(private readonly departmentRepository: DepartmentRepository) {}
+
+  async create(createDepartmentDto: CreateDepartmentDto) {
+    const newDepartment = this.departmentRepository.create(createDepartmentDto);
+
+    return await this.departmentRepository.save(newDepartment);
   }
 
-  findAll() {
-    return `This action returns all departments`;
+  async findAll() {
+    return await this.findAll();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} department`;
+  async findOne(id: number) {
+    return await this.departmentRepository.findOneById(id);
   }
 
-  update(id: number, updateDepartmentDto: UpdateDepartmentDto) {
-    return `This action updates a #${id} department`;
+  async update(id: number, updateDepartmentDto: UpdateDepartmentDto) {
+    const departmentToEdit = await this.departmentRepository.findOneById(id);
+
+    if (!departmentToEdit) {
+      throw new NotFoundException('Registro no encontrado');
+    }
+
+    return await this.departmentRepository.save({
+      ...departmentToEdit,
+      ...updateDepartmentDto,
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} department`;
+  async remove(id: number) {
+    const departmentToRemove = await this.departmentRepository.findOneById(id);
+
+    if (!departmentToRemove) {
+      throw new NotFoundException('Registro no encontrado');
+    }
+    return await this.departmentRepository.remove(departmentToRemove);
   }
 }

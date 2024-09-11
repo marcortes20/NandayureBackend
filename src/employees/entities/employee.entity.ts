@@ -1,5 +1,7 @@
 import { Annuity } from 'src/annuities/entities/annuity.entity';
 import { Attendance } from 'src/attendance/entities/attendance.entity';
+import { Department } from 'src/departments/entities/department.entity';
+import { Embargo } from 'src/embargoes/entities/embargo.entity';
 import { Gender } from 'src/genders/entities/gender.entity';
 import { JobPosition } from 'src/job-positions/entities/job-position.entity';
 import { MaritalStatus } from 'src/marital-status/entities/marital-status.entity';
@@ -63,6 +65,12 @@ export class Employee {
   @Column()
   MaritalStatusId: number;
 
+  @Column()
+  DepartmentId: number;
+
+  @Column()
+  EmbargoId: number;
+
   @OneToOne(() => User, (user) => user.Employee)
   User: User;
 
@@ -70,9 +78,17 @@ export class Employee {
   @JoinColumn({ name: 'MaritalStatusId' })
   MaritalStatus: MaritalStatus;
 
+  @ManyToOne(() => Department, (department) => department.Employees)
+  @JoinColumn({ name: 'DepartmentId' })
+  Department: Department;
+
   @ManyToOne(() => Gender, (gender) => gender.employees)
   @JoinColumn({ name: 'GenderId' })
   Gender: Gender;
+
+  @ManyToOne(() => Embargo, (embargo) => embargo.employees)
+  @JoinColumn({ name: 'EmbargoId' })
+  embargo: Embargo;
 
   @ManyToOne(() => JobPosition, (jobPosition) => jobPosition.Employees, {
     nullable: true,

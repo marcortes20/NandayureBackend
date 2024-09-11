@@ -1,8 +1,18 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { EmbargoesService } from './embargoes.service';
 import { CreateEmbargoDto } from './dto/create-embargo.dto';
 import { UpdateEmbargoDto } from './dto/update-embargo.dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('embargoes')
 @Controller('embargoes')
 export class EmbargoesController {
   constructor(private readonly embargoesService: EmbargoesService) {}

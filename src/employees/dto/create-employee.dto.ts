@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsInt,
   IsNotEmpty,
@@ -6,6 +6,7 @@ import {
   IsNumber,
   IsEmail,
   IsDateString,
+  IsOptional,
 } from 'class-validator';
 
 export class CreateEmployeeDto {
@@ -70,4 +71,13 @@ export class CreateEmployeeDto {
   @ApiProperty()
   @IsInt()
   JobPositionId?: number;
+
+  @ApiProperty()
+  @IsInt()
+  DepartmentId?: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsInt()
+  EmbargoId?: number;
 }
