@@ -1,8 +1,11 @@
 import { Employee } from 'src/employees/entities/employee.entity';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { IJobPosition } from '../interfaces/job-position.interface';
 
-@Entity()
-export class JobPosition {
+@Entity({
+  name: 'JobPosition',
+})
+export class JobPosition implements IJobPosition {
   @PrimaryGeneratedColumn()
   id: number;
 
