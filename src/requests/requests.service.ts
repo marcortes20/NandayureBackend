@@ -1,26 +1,72 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateRequestDto } from './dto/create-request.dto';
 import { UpdateRequestDto } from './dto/update-request.dto';
+import { RequestRepository } from './repository/request.repository';
+import { RequestsStateService } from 'src/requests-state/requests-state.service';
+import { EmployeesService } from 'src/employees/employees.service';
 
 @Injectable()
 export class RequestsService {
-  create(createRequestDto: CreateRequestDto) {
-    return 'This action adds a new request';
+  constructor(
+    private readonly requestRepository: RequestRepository,
+    private readonly requestStateRepository: RequestsStateService,
+    private readonly employeeRepository: EmployeesService,
+  ) {}
+
+  async create(createRequestDto: CreateRequestDto) {
+    const userExist = await this.employeeRepository.findOneById(
+      createRequestDto.EmployeeId,
+    );
+
+    if (!userExist) {
+      throw new NotFoundException('Empleado no encontrado');
+    }
+
+    const newRequest = this.requestRepository.create({
+      ...createRequestDto,
+      RequestStatus: { id: 1 }, // asegurar que el id 1 sea el de pendiente
+    });
+
+    return await this.requestRepository.save(newRequest);
   }
 
-  findAll() {
-    return `This action returns all requests`;
+  async findAll() {
+    return await this.requestRepository.findAll();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} request`;
+  async findOne(id: number) {
+    return await this.requestRepository.findOneById(id);
   }
 
-  update(id: number, updateRequestDto: UpdateRequestDto) {
-    return `This action updates a #${id} request`;
+  // async update(id: number, updateRequestDto: UpdateRequestDto) {
+  //   return `This action updates a #${id} request`;
+  // }
+  async update(id: number, updateRequestDto: UpdateRequestDto) {
+    const newState = await this.requestStateRepository.findOne(
+      updateRequestDto.requestStatusId,
+    );
+
+    if (!newState) {
+      throw new NotFoundException('No se encontró el nuevo estado');
+    }
+    const requestToEdit = await this.requestRepository.findOneById(id);
+
+    if (!requestToEdit) {
+      throw new NotFoundException('solicitud no encontrada');
+    }
+
+    requestToEdit.RequestStatus.id = updateRequestDto.requestStatusId;
+
+    return await this.requestRepository.save(requestToEdit);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} request`;
+  async remove(id: number) {
+    const requestToRemove = await this.requestRepository.findOneById(id);
+
+    if (!requestToRemove) {
+      throw new NotFoundException('solicitud no encontrada');
+    }
+
+    return await this.requestRepository.remove(requestToRemove);
   }
 }

@@ -4,7 +4,7 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 //import { User } from './users/entities/user.entity';
-import { TypeOrmModule } from '@nestjs/typeorm';
+// import { TypeOrmModule } from '@nestjs/typeorm';
 //import { Role } from './roles/entities/role.entity';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CacheModule } from '@nestjs/cache-manager';
@@ -36,6 +36,7 @@ import { DepartmentsModule } from './departments/departments.module';
 import { DepartmentProgramsModule } from './department-programs/department-programs.module';
 import { BudgetCodesModule } from './budget-codes/budget-codes.module';
 import { TypeBudgetCodesModule } from './type-budget-codes/type-budget-codes.module';
+import { DbModule } from './db/db.module';
 
 @Module({
   imports: [
@@ -44,27 +45,12 @@ import { TypeBudgetCodesModule } from './type-budget-codes/type-budget-codes.mod
       isGlobal: true,
       expandVariables: true,
     }),
-
-    TypeOrmModule.forRootAsync({
-      imports: [ConfigModule], // Importa ConfigModule aquí
-      inject: [ConfigService], // Inyecta ConfigService
-      useFactory: async (configService: ConfigService) => ({
-        type: 'mysql',
-        host: configService.get<string>('DB_HOST'),
-        port: configService.get<number>('DB_PORT'),
-        username: configService.get<string>('DB_USERNAME'),
-        password: configService.get<string>('DB_PASSWORD'),
-        database: configService.get<string>('DB_NAME'),
-        synchronize: true,
-        autoLoadEntities: true,
-      }),
-    }),
+    DbModule,
     CacheModule.register({ isGlobal: true }),
     AuthModule,
     UsersModule,
     EmployeesModule,
     MaritalStatusModule,
-    GendersModule,
     GendersModule,
     MunicipalityModule,
     JobPositionsModule,

@@ -1,26 +1,48 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateTypeBudgetCodeDto } from './dto/create-type-budget-code.dto';
 import { UpdateTypeBudgetCodeDto } from './dto/update-type-budget-code.dto';
+import { TypeBudgetCodeRepository } from './repository/TypeBudgetCode.repository';
 
 @Injectable()
 export class TypeBudgetCodesService {
-  create(createTypeBudgetCodeDto: CreateTypeBudgetCodeDto) {
-    return 'This action adds a new typeBudgetCode';
+  constructor(
+    private readonly typeBudgetCodeRepository: TypeBudgetCodeRepository,
+  ) {}
+  async create(createTypeBudgetCodeDto: CreateTypeBudgetCodeDto) {
+    const newType = this.typeBudgetCodeRepository.create(
+      createTypeBudgetCodeDto,
+    );
+
+    return await this.typeBudgetCodeRepository.save(newType);
   }
 
-  findAll() {
-    return `This action returns all typeBudgetCodes`;
+  async findAll() {
+    return await this.typeBudgetCodeRepository.findAll();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} typeBudgetCode`;
+  async findOne(id: number) {
+    return await this.typeBudgetCodeRepository.findOneById(id);
   }
 
-  update(id: number, updateTypeBudgetCodeDto: UpdateTypeBudgetCodeDto) {
-    return `This action updates a #${id} typeBudgetCode`;
+  async update(id: number, updateTypeBudgetCodeDto: UpdateTypeBudgetCodeDto) {
+    const typeToEdit = await this.typeBudgetCodeRepository.findOneById(id);
+
+    if (!typeToEdit) {
+      throw new NotFoundException('Registro no encontrado');
+    }
+
+    return await this.typeBudgetCodeRepository.save({
+      ...typeToEdit,
+      ...updateTypeBudgetCodeDto,
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} typeBudgetCode`;
+  async remove(id: number) {
+    const typeToRemove = await this.typeBudgetCodeRepository.findOneById(id);
+
+    if (!typeToRemove) {
+      throw new NotFoundException('Registro no encontrado');
+    }
+    return await this.typeBudgetCodeRepository.remove(typeToRemove);
   }
 }

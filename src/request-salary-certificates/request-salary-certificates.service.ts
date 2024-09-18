@@ -1,26 +1,61 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateRequestSalaryCertificateDto } from './dto/create-request-salary-certificate.dto';
 import { UpdateRequestSalaryCertificateDto } from './dto/update-request-salary-certificate.dto';
+import { RequestSalaryCertificateRepository } from './repository/RequestSalaryCertificate.repository';
 
 @Injectable()
 export class RequestSalaryCertificatesService {
-  create(createRequestSalaryCertificateDto: CreateRequestSalaryCertificateDto) {
-    return 'This action adds a new requestSalaryCertificate';
+  constructor(
+    private readonly requestSalaryCertificateRepository: RequestSalaryCertificateRepository,
+  ) {}
+
+  async create(
+    createRequestSalaryCertificateDto: CreateRequestSalaryCertificateDto,
+  ) {
+    const newCertificateRequest =
+      this.requestSalaryCertificateRepository.create(
+        createRequestSalaryCertificateDto,
+      );
+    return await this.requestSalaryCertificateRepository.save(
+      newCertificateRequest,
+    );
   }
 
-  findAll() {
-    return `This action returns all requestSalaryCertificates`;
+  async findAll() {
+    return await this.requestSalaryCertificateRepository.findAll();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} requestSalaryCertificate`;
+  async findOne(id: number) {
+    return await this.requestSalaryCertificateRepository.findOneById(id);
   }
 
-  update(id: number, updateRequestSalaryCertificateDto: UpdateRequestSalaryCertificateDto) {
-    return `This action updates a #${id} requestSalaryCertificate`;
+  async update(
+    id: number,
+    updateRequestSalaryCertificateDto: UpdateRequestSalaryCertificateDto,
+  ) {
+    const requestToEdit =
+      await this.requestSalaryCertificateRepository.findOneById(id);
+
+    if (!requestToEdit) {
+      throw new NotFoundException('Solicitud no encontrada');
+    }
+
+    return await this.requestSalaryCertificateRepository.save({
+      ...requestToEdit,
+      ...updateRequestSalaryCertificateDto,
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} requestSalaryCertificate`;
+  async remove(id: number) {
+    const requestToRemove =
+      await this.requestSalaryCertificateRepository.findOneById(id);
+
+    if (!requestToRemove) {
+      throw new NotFoundException('Solicitud no encontrada');
+    }
+
+    return await this.requestSalaryCertificateRepository.remove(
+      requestToRemove,
+    );
   }
 }

@@ -1,11 +1,23 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { TypeBudgetCodesService } from './type-budget-codes.service';
 import { CreateTypeBudgetCodeDto } from './dto/create-type-budget-code.dto';
 import { UpdateTypeBudgetCodeDto } from './dto/update-type-budget-code.dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('type-budget-codes')
 @Controller('type-budget-codes')
 export class TypeBudgetCodesController {
-  constructor(private readonly typeBudgetCodesService: TypeBudgetCodesService) {}
+  constructor(
+    private readonly typeBudgetCodesService: TypeBudgetCodesService,
+  ) {}
 
   @Post()
   create(@Body() createTypeBudgetCodeDto: CreateTypeBudgetCodeDto) {
@@ -23,7 +35,10 @@ export class TypeBudgetCodesController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTypeBudgetCodeDto: UpdateTypeBudgetCodeDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateTypeBudgetCodeDto: UpdateTypeBudgetCodeDto,
+  ) {
     return this.typeBudgetCodesService.update(+id, updateTypeBudgetCodeDto);
   }
 
