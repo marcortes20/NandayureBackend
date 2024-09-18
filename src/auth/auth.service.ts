@@ -110,6 +110,7 @@ export class AuthService {
     if (userToEdit) {
       const payload = await {
         Email: userToEdit.Employee.Email,
+        id: userToEdit.id,
         jti: uuidv4(),
       };
 
