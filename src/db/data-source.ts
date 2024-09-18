@@ -17,8 +17,8 @@ export const dataSourceOptions: DataSourceOptions & SeederOptions = {
   synchronize: true, //solo en etapa de desarrollo
   entities: ['dist/**/entities/*.entity.js'],
   logging: true,
-  seeds: ['dist/db/seeds/**/*.js'],
-  factories: ['dist/db/factories/**/*.js'],
+  seeds: ['dist/**/seed/*.seeder.js'],
+  factories: ['dist/**/factory/*.factory.js'],
 };
 
 export default new DataSource(dataSourceOptions);
