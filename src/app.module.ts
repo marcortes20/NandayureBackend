@@ -3,16 +3,10 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
-//import { User } from './users/entities/user.entity';
-// import { TypeOrmModule } from '@nestjs/typeorm';
-//import { Role } from './roles/entities/role.entity';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { CacheModule } from '@nestjs/cache-manager';
-
-//import { MailClientModule } from './mail-client/mail-client.module';
 import { EmployeesModule } from './employees/employees.module';
 import { MaritalStatusModule } from './marital-status/marital-status.module';
-
 import { GendersModule } from './genders/genders.module';
 import { MunicipalityModule } from './municipality/municipality.module';
 import { JobPositionsModule } from './job-positions/job-positions.module';
