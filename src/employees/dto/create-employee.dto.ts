@@ -75,10 +75,5 @@ export class CreateEmployeeDto {
   @ApiPropertyOptional()
   @IsOptional()
   @IsInt()
-  DepartmentId?: number;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsInt()
   EmbargoId?: number;
 }

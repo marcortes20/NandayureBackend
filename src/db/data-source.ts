@@ -1,6 +1,5 @@
 import { DataSource, DataSourceOptions } from 'typeorm';
 import { SeederOptions } from 'typeorm-extension';
-
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
 ConfigModule.forRoot();
@@ -17,7 +16,7 @@ export const dataSourceOptions: DataSourceOptions & SeederOptions = {
   synchronize: true, //solo en etapa de desarrollo
   entities: ['dist/**/entities/*.entity.js'],
   logging: true,
-  seeds: ['dist/**/seed/*.seeder.js'],
+  seeds: ['dist/db/seed/*.seeder.js'],
   factories: ['dist/**/factory/*.factory.js'],
 };
 

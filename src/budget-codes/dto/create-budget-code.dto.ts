@@ -5,20 +5,20 @@ export class CreateBudgetCodeDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsNumber()
-  code: number;
-
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsNumber()
-  departmentProtgramId: number;
+  CodSalary?: string;
 
   @ApiPropertyOptional()
   @IsNotEmpty()
   @IsNumber()
-  departmentId?: number;
+  CodExtra?: string;
 
   @ApiPropertyOptional()
   @IsNotEmpty()
   @IsNumber()
-  budgetCodeId: number;
+  CodAnuity?: string;
+
+  @ApiPropertyOptional()
+  @IsNotEmpty()
+  @IsNumber()
+  CodSalaryPlus?: string;
 }

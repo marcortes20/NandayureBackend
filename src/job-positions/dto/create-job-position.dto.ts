@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDecimal, IsString } from 'class-validator';
+import { IsDecimal, IsInt, IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateJobPositionDto {
   @ApiProperty({
@@ -38,4 +38,9 @@ export class CreateJobPositionDto {
   })
   @IsDecimal()
   extrafees: number;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsInt()
+  DepartmentId: number;
 }

@@ -29,7 +29,6 @@ import { TypeFinancialInstitutionsModule } from './type-financial-institutions/t
 import { DepartmentsModule } from './departments/departments.module';
 import { DepartmentProgramsModule } from './department-programs/department-programs.module';
 import { BudgetCodesModule } from './budget-codes/budget-codes.module';
-import { TypeBudgetCodesModule } from './type-budget-codes/type-budget-codes.module';
 import { DbModule } from './db/db.module';
 
 @Module({
@@ -67,7 +66,6 @@ import { DbModule } from './db/db.module';
     DepartmentsModule,
     DepartmentProgramsModule,
     BudgetCodesModule,
-    TypeBudgetCodesModule,
   ],
 
   controllers: [AppController],

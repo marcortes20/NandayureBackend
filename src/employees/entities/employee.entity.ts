@@ -1,6 +1,5 @@
 import { Annuity } from 'src/annuities/entities/annuity.entity';
 import { Attendance } from 'src/attendance/entities/attendance.entity';
-import { Department } from 'src/departments/entities/department.entity';
 import { Embargo } from 'src/embargoes/entities/embargo.entity';
 import { Gender } from 'src/genders/entities/gender.entity';
 import { JobPosition } from 'src/job-positions/entities/job-position.entity';
@@ -68,9 +67,6 @@ export class Employee {
 
   //por el momento es opcional
   @Column({ nullable: true })
-  DepartmentId: number;
-  //por el momento es opcional
-  @Column({ nullable: true })
   EmbargoId: number;
 
   @OneToOne(() => User, (user) => user.Employee)
@@ -79,12 +75,6 @@ export class Employee {
   @ManyToOne(() => MaritalStatus, (maritalStatus) => maritalStatus.employees)
   @JoinColumn({ name: 'MaritalStatusId' })
   MaritalStatus: MaritalStatus;
-  //relacion marcada como opcional para etapa de desarrrollo
-  @ManyToOne(() => Department, (department) => department.Employees, {
-    nullable: true,
-  })
-  @JoinColumn({ name: 'DepartmentId' })
-  Department: Department;
 
   @ManyToOne(() => Gender, (gender) => gender.employees)
   @JoinColumn({ name: 'GenderId' })
