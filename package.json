@@ -18,10 +18,10 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "db:create": "npm run build && ts-node ./node_modules/typeorm-extension/bin/cli.cjs db:create",
-    "db:drop": "npm run build && ts-node ./node_modules/typeorm-extension/bin/cli.cjs db:drop",
+    "db:create": "ts-node ./node_modules/typeorm-extension/bin/cli.cjs db:create",
+    "db:drop": "ts-node ./node_modules/typeorm-extension/bin/cli.cjs db:drop",
     "seed:run": "npm run build && ts-node ./node_modules/typeorm-extension/bin/cli.cjs seed:run",
-    "seed:create": "npm run build && ts-node ./node_modules/typeorm-extension/bin/cli.cjs seed:create"
+    "seed:create": "ts-node ./node_modules/typeorm-extension/bin/cli.cjs seed:create"
   },
   "dependencies": {
     "@nestjs-modules/mailer": "^2.0.2",

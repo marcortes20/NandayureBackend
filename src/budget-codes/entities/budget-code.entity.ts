@@ -1,48 +1,23 @@
-import { DepartmentProgram } from 'src/department-programs/entities/department-program.entity';
 import { Department } from 'src/departments/entities/department.entity';
-import { TypeBudgetCode } from 'src/type-budget-codes/entities/type-budget-code.entity';
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class BudgetCode {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
-  code: number;
+  @Column({ nullable: true })
+  CodSalary: string;
 
-  @Column()
-  departmentProtgramId: number;
+  @Column({ nullable: true })
+  CodExtra: string;
 
-  @Column()
-  departmentId: number;
+  @Column({ nullable: true })
+  CodAnuity: string;
 
-  @Column()
-  budgetCodeId: number;
+  @Column({ nullable: true })
+  CodSalaryPlus: string;
 
-  @ManyToOne(
-    () => DepartmentProgram,
-    (departmentProgram) => departmentProgram.BudgetCode,
-  )
-  @JoinColumn({ name: 'departmentProtgramId' })
-  departmentProgram: DepartmentProgram;
-
-  @ManyToOne(() => Department, (department) => department.BudgetCode, {
-    nullable: true,
-  })
-  @JoinColumn({ name: 'departmentId' })
-  Department: Department;
-
-  @ManyToOne(
-    () => TypeBudgetCode,
-    (typeBudgetCode) => typeBudgetCode.BudgetCodes,
-  )
-  @JoinColumn({ name: 'budgetCodeId' })
-  typeBudgetCode: TypeBudgetCode;
+  @OneToMany(() => Department, (department) => department.BudgetCode)
+  Department: Department[];
 }
