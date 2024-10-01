@@ -6,7 +6,4 @@ export class DefaultUserDto {
   Password: string;
 
   Roles: Role[];
-
-  // @IsArray()
-  // roles: number[] = [2];
 }

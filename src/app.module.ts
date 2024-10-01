@@ -11,7 +11,6 @@ import { GendersModule } from './genders/genders.module';
 import { MunicipalityModule } from './municipality/municipality.module';
 import { JobPositionsModule } from './job-positions/job-positions.module';
 import { TrainingsModule } from './trainings/trainings.module';
-import { EmbargoesModule } from './embargoes/embargoes.module';
 import { AnnuitiesModule } from './annuities/annuities.module';
 import { OvertimesModule } from './overtimes/overtimes.module';
 import { AttendanceModule } from './attendance/attendance.module';
@@ -42,13 +41,13 @@ import { DbModule } from './db/db.module';
     CacheModule.register({ isGlobal: true }),
     AuthModule,
     UsersModule,
+    FinancialInstitutionsModule,
     EmployeesModule,
     MaritalStatusModule,
     GendersModule,
     MunicipalityModule,
     JobPositionsModule,
     TrainingsModule,
-    EmbargoesModule,
     AnnuitiesModule,
     OvertimesModule,
     AttendanceModule,
@@ -61,7 +60,6 @@ import { DbModule } from './db/db.module';
     RequestSalaryCertificatesModule,
     RequestPaymentConfirmationsModule,
     LaborCodeRegulationsModule,
-    FinancialInstitutionsModule,
     TypeFinancialInstitutionsModule,
     DepartmentsModule,
     DepartmentProgramsModule,

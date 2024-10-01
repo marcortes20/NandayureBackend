@@ -1,6 +1,6 @@
-import { CreateEmployeeDto } from '../dto/create-employee.dto';
+import { defaultEmployee } from '../dto/defaultEmployee.dto';
 
-export const defaultEmployeesData: CreateEmployeeDto[] = [
+export const defaultEmployeesData: defaultEmployee[] = [
   {
     id: '504420108',
     Name: 'Marco Stiven',

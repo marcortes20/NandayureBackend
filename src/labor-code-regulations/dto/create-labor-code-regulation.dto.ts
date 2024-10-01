@@ -9,14 +9,12 @@ import {
 
 export class CreateLaborCodeRegulationDto {
   @ApiProperty()
-  @IsNotEmpty()
   @IsDecimal()
   minimumAmount: number;
 
   @ApiProperty()
-  @IsNotEmpty()
   @IsDecimal()
-  maximumAmount: number;
+  maximumAmount?: number;
 
   @ApiProperty()
   @IsNotEmpty()

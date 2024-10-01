@@ -5,10 +5,10 @@ export class LaborCodeRegulation {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column('decimal', { precision: 10, scale: 4 })
+  @Column('decimal', { precision: 11, scale: 2, nullable: true })
   minimumAmount: number;
 
-  @Column('decimal', { precision: 10, scale: 4 })
+  @Column('decimal', { precision: 11, scale: 2, nullable: true })
   maximumAmount: number;
 
   @Column()

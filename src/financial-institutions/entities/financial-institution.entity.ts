@@ -1,8 +1,10 @@
+import { Employee } from 'src/employees/entities/employee.entity';
 import { TypeFinancialInstitution } from 'src/type-financial-institutions/entities/type-financial-institution.entity';
 import {
   Column,
   Entity,
   JoinColumn,
+  ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -19,7 +21,10 @@ export class FinancialInstitution {
   name: string;
 
   @Column()
-  percentage: number;
+  description: string;
+
+  @Column({ type: 'decimal', precision: 5, scale: 2 })
+  deductionPercentage: number;
 
   @ManyToOne(
     () => TypeFinancialInstitution,
@@ -28,4 +33,7 @@ export class FinancialInstitution {
   )
   @JoinColumn({ name: 'TypeFinancialInstitutionId' })
   TypeFinancialInstitution: TypeFinancialInstitution;
+
+  @ManyToMany(() => Employee, (employee) => employee.FinancialInstitutions)
+  Employees: Employee[];
 }
