@@ -10,5 +10,15 @@ export class CreateFinancialInstitutionDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsNumber()
-  percentage: string;
+  deductionPercentage: number;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  description: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsNumber()
+  TypeFinancialInstitutionId: number;
 }

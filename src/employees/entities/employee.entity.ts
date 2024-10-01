@@ -1,6 +1,6 @@
 import { Annuity } from 'src/annuities/entities/annuity.entity';
 import { Attendance } from 'src/attendance/entities/attendance.entity';
-import { Embargo } from 'src/embargoes/entities/embargo.entity';
+import { FinancialInstitution } from 'src/financial-institutions/entities/financial-institution.entity';
 import { Gender } from 'src/genders/entities/gender.entity';
 import { JobPosition } from 'src/job-positions/entities/job-position.entity';
 import { MaritalStatus } from 'src/marital-status/entities/marital-status.entity';
@@ -81,13 +81,6 @@ export class Employee {
   Gender: Gender;
 
   //relacion marcada como opcional para etapa de desarrrollo
-  @ManyToOne(() => Embargo, (embargo) => embargo.employees, {
-    nullable: true,
-  })
-  @JoinColumn({ name: 'EmbargoId' })
-  embargo: Embargo;
-
-  //relacion marcada como opcional para etapa de desarrrollo
   @ManyToOne(() => JobPosition, (jobPosition) => jobPosition.Employees, {
     nullable: true,
   })
@@ -95,12 +88,19 @@ export class Employee {
   JobPosition: JobPosition;
 
   @ManyToMany(() => Training, (training) => training.employees)
-  @JoinTable({ name: 'employee-training' })
+  @JoinTable({ name: 'employee_training' })
   trainings: Training[];
 
   @ManyToMany(() => Study, (study) => study.Employees)
-  @JoinTable({ name: 'employee-studies' })
+  @JoinTable({ name: 'employee_studies' })
   Studies: Study[];
+
+  @ManyToMany(
+    () => FinancialInstitution,
+    (financialInstitution) => financialInstitution.Employees,
+  )
+  @JoinTable()
+  FinancialInstitutions: FinancialInstitution[];
 
   @OneToMany(() => Annuity, (annuity) => annuity.employee)
   annuities: Annuity[];
