@@ -56,4 +56,40 @@ export class MailClientService {
       //html: welcomeMail,
     });
   }
+  async sendRequestConfirmationMail(mail: string) {
+    this.mailService.sendMail({
+      from: 'RH-Nandayure',
+      to: mail,
+      text: 'Su solicitud ha sido enviada con éxito, pronto recibirá una respuesta',
+      //html: welcomeMail,
+    });
+  }
+  async sendNewRequestProcessApproverMail(
+    approverMail: string,
+    requesterId: string,
+    requesterName: string,
+    requestType: string,
+  ) {
+    this.mailService.sendMail({
+      from: 'RH-Nandayure',
+      to: approverMail,
+      subject: `Nueva solicitud de ${requestType}`,
+      text: `Se ha creado una nueva solicitud a nombre de ${requesterName}   numero de cédula: ${requesterId} que necesita su aprobación`,
+      //html: welcomeMail,
+    });
+  }
+  async sendNewRequestProcessRequesterMail(
+    approverName: string,
+    requesterEmail: string,
+    requesterName: string,
+    requestType: string,
+  ) {
+    this.mailService.sendMail({
+      from: 'RH-Nandayure',
+      to: requesterEmail,
+      subject: `Su solicitud de ${requestType} está en proceso`,
+      text: `Estimado ${requesterName} en este momento su solicitud está a la espera de de la revision de ${approverName}`,
+      //html: welcomeMail,
+    });
+  }
 }

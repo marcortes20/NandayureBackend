@@ -1,4 +1,5 @@
 import { Employee } from 'src/employees/entities/employee.entity';
+import { RequestApproval } from 'src/request-approvals/entities/request-approval.entity';
 import { RequestPaymentConfirmation } from 'src/request-payment-confirmations/entities/request-payment-confirmation.entity';
 import { RequestSalaryCertificate } from 'src/request-salary-certificates/entities/request-salary-certificate.entity';
 import { RequestVacation } from 'src/request-vacation/entities/request-vacation.entity';
@@ -8,6 +9,7 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -54,4 +56,10 @@ export class Request {
     { nullable: true },
   )
   RequestPaymentConfirmation: RequestPaymentConfirmation;
+
+  @OneToMany(
+    () => RequestApproval,
+    (requestApproval) => requestApproval.Request,
+  )
+  RequestApprovals: RequestApproval[];
 }

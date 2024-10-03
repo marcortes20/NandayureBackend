@@ -21,13 +21,13 @@ export class RequestVacation {
   @Column()
   entryDate: Date;
 
-  @Column()
+  @Column({ nullable: true, default: null })
   departmentApproval: boolean;
 
-  @Column()
+  @Column({ nullable: true, default: null })
   RRHHApproval: boolean;
 
-  @Column()
+  @Column({ nullable: true, default: null })
   mayorApproval: boolean;
 
   @Column({ unique: true })

@@ -15,5 +15,6 @@ import { EmployeesModule } from 'src/employees/employees.module';
   ],
   controllers: [RequestsController],
   providers: [RequestsService, RequestRepository],
+  exports: [RequestsService, RequestRepository],
 })
 export class RequestsModule {}

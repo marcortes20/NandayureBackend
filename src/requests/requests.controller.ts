@@ -1,14 +1,6 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-} from '@nestjs/common';
+import { Controller, Get, Body, Patch, Param, Delete } from '@nestjs/common';
 import { RequestsService } from './requests.service';
-import { CreateRequestDto } from './dto/create-request.dto';
+//import { CreateRequestDto } from './dto/create-request.dto';
 import { UpdateRequestDto } from './dto/update-request.dto';
 import { ApiTags } from '@nestjs/swagger';
 @ApiTags('requests')
@@ -16,10 +8,10 @@ import { ApiTags } from '@nestjs/swagger';
 export class RequestsController {
   constructor(private readonly requestsService: RequestsService) {}
 
-  @Post()
-  create(@Body() createRequestDto: CreateRequestDto) {
-    return this.requestsService.create(createRequestDto);
-  }
+  // @Post()
+  // create(@Body() createRequestDto: CreateRequestDto) {
+  //   return this.requestsService.create(createRequestDto);
+  // }
 
   @Get()
   findAll() {
