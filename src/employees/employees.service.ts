@@ -1,8 +1,8 @@
 import {
-  BadRequestException,
   ConflictException,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
@@ -71,8 +71,12 @@ export class EmployeesService {
   }
 
   async findOneById(id: string) {
+    return await this.employeeRepository.findOneById(id);
+  }
+
+  async findMayor() {
     return await this.employeeRepository.findOne({
-      where: { id },
+      where: { JobPositionId: 1 },
     });
   }
 
@@ -85,7 +89,7 @@ export class EmployeesService {
   async update(id: string, updateEmployeeDto: UpdateEmployeeDto) {
     const employeeToEdit = await this.findOneById(id);
     if (!employeeToEdit) {
-      throw new BadRequestException(
+      throw new NotFoundException(
         'No existe el usuario con número de cédula: ',
       );
     }
@@ -98,14 +102,14 @@ export class EmployeesService {
     });
   }
 
-  private async validateDataToCreate(dto: CreateEmployeeDto) {
+  async validateDataToCreate(dto: CreateEmployeeDto) {
     await this.validateEmployeeId(dto.id);
     await this.validateEmployeeEmail(dto.Email);
     await this.validateMaritalStatus(dto.MaritalStatusId);
     await this.validateGender(dto.GenderId);
   }
 
-  private async validateDataToUpdate(dto: UpdateEmployeeDto) {
+  async validateDataToUpdate(dto: UpdateEmployeeDto) {
     if (dto.MaritalStatusId) {
       await this.validateMaritalStatus(dto.MaritalStatusId);
     }
@@ -123,7 +127,7 @@ export class EmployeesService {
     }
   }
 
-  private async validateEmployeeId(id: string) {
+  async validateEmployeeId(id: string) {
     const existEmployee = await this.findOneById(id);
     if (existEmployee) {
       throw new ConflictException(
@@ -132,7 +136,7 @@ export class EmployeesService {
     }
   }
 
-  private async validateEmployeeEmail(email: string) {
+  async validateEmployeeEmail(email: string) {
     const existEmployeeWithMail = await this.findOneByEmail(email);
     if (existEmployeeWithMail) {
       throw new ConflictException(
@@ -141,7 +145,7 @@ export class EmployeesService {
     }
   }
 
-  private async validateMaritalStatus(maritalStatusId: number) {
+  async validateMaritalStatus(maritalStatusId: number) {
     const existMaritalStatus =
       await this.maritalStatusService.findOneById(maritalStatusId);
     if (!existMaritalStatus) {
@@ -149,13 +153,13 @@ export class EmployeesService {
     }
   }
 
-  private async validateGender(genderId: number) {
+  async validateGender(genderId: number) {
     const existGender = await this.genderService.findOneById(genderId);
     if (!existGender) {
       throw new ConflictException('No existe el género seleccionado');
     }
   }
-  private async validateJobPosition(JobPositionId: number) {
+  async validateJobPosition(JobPositionId: number) {
     const existGender =
       await this.jobPositionService.findOneById(JobPositionId);
     if (!existGender) {
@@ -163,8 +167,59 @@ export class EmployeesService {
     }
   }
 
-  // async remove(EmployeeId: number) {
-  //   // return this.employeeRepository.softDelete({ EmployeeId });
-  //   // this.userService.
-  // }
+  async validateExistEmployeeId(id: string) {
+    const existEmployee = await this.findOneById(id);
+    if (!existEmployee) {
+      throw new ConflictException(
+        'No existe un empleado con ese número de identificación',
+      );
+    }
+  }
+
+  async updateVacationDays(id: string, requestedDays: number) {
+    const existEmployee = await this.findOneById(id);
+    if (!existEmployee) {
+      throw new ConflictException(
+        'No existe un empleado con ese número de identificación',
+      );
+    }
+
+    if (existEmployee.AvailableVacationDays < requestedDays) {
+      throw new ConflictException(
+        'No tiene suficientes días de vacaciones disponibles',
+      );
+    }
+    existEmployee.AvailableVacationDays -= requestedDays;
+
+    return await this.employeeRepository.save(existEmployee);
+  }
+
+  async validateAvaiableVacationsDays(id: string, requestedDays: number) {
+    const existEmployee = await this.findOneById(id);
+    if (!existEmployee) {
+      throw new ConflictException(
+        'No existe un empleado con ese número de identificación',
+      );
+    }
+
+    if (existEmployee.AvailableVacationDays < requestedDays) {
+      throw new ConflictException(
+        'No tiene suficientes días de vacaciones disponibles',
+      );
+    }
+  }
+
+  async getEmployeeDepartment(id: string) {
+    const employeeWithDepartment = await this.employeeRepository.findOne({
+      where: { id },
+      relations: {
+        JobPosition: { Department: true },
+      },
+    });
+
+    if (!employeeWithDepartment) {
+      throw new ConflictException('No existe un empleado con ese id');
+    }
+    return employeeWithDepartment.JobPosition.Department;
+  }
 }

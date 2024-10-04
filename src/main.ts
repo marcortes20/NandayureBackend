@@ -18,7 +18,6 @@ async function bootstrap() {
     }),
   );
   app.useGlobalFilters(new HttpExceptionFilter());
-  // const httpAdapter = app.get(HttpAdapterHost);
   // app.useGlobalFilters(new AllExceptionsFilter(httpAdapter));
   const config = new DocumentBuilder()
     .setTitle('HR department')

@@ -36,6 +36,7 @@ export class JobPositionsService {
       where: { Name: Name },
     });
   }
+
   async findOneById(id: number) {
     return this.jobPositionRepository.findOneById(id);
   }

@@ -14,17 +14,9 @@ export class RequestsService {
   ) {}
 
   async create(createRequestDto: CreateRequestDto) {
-    const userExist = await this.employeeRepository.findOneById(
-      createRequestDto.EmployeeId,
-    );
-
-    if (!userExist) {
-      throw new NotFoundException('Empleado no encontrado');
-    }
-
     const newRequest = this.requestRepository.create({
       ...createRequestDto,
-      RequestStatus: { id: 1 }, // asegurar que el id 1 sea el de pendiente
+      RequestStatus: { id: 1 }, // asegurar que el id 1 sea el de EN PROCESO
     });
 
     return await this.requestRepository.save(newRequest);

@@ -6,11 +6,14 @@ import {
   Patch,
   Param,
   Delete,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 import { RequestVacationService } from './request-vacation.service';
 import { CreateRequestVacationDto } from './dto/create-request-vacation.dto';
 import { UpdateRequestVacationDto } from './dto/update-request-vacation.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from 'src/auth/guards/auth.guard';
 @ApiTags('request-vacation')
 @Controller('request-vacation')
 export class RequestVacationController {
@@ -18,9 +21,16 @@ export class RequestVacationController {
     private readonly requestVacationService: RequestVacationService,
   ) {}
 
+  @UseGuards(AuthGuard)
   @Post()
-  create(@Body() createRequestVacationDto: CreateRequestVacationDto) {
-    return this.requestVacationService.create(createRequestVacationDto);
+  create(
+    @Req() req,
+    @Body() createRequestVacationDto: CreateRequestVacationDto,
+  ) {
+    return this.requestVacationService.create(
+      createRequestVacationDto,
+      req.user.id,
+    );
   }
 
   @Get()
