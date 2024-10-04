@@ -1,4 +1,15 @@
-import { PartialType } from '@nestjs/swagger';
-import { CreateRequestApprovalDto } from './create-request-approval.dto';
+import { ApiProperty } from '@nestjs/swagger';
 
-export class UpdateRequestApprovalDto extends PartialType(CreateRequestApprovalDto) {}
+import { IsBoolean, IsNotEmpty, IsString } from 'class-validator';
+
+export class UpdateRequestApprovalDto {
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsBoolean()
+  approved: boolean;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  observation?: string;
+}

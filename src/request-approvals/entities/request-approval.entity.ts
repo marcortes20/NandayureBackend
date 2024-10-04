@@ -28,7 +28,7 @@ export class RequestApproval {
   observation: string;
 
   @Column({ nullable: true, default: null })
-  appoved: boolean;
+  approved: boolean;
 
   @Column({ default: false })
   current: boolean;

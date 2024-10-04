@@ -117,7 +117,6 @@ export class RequestVacationService {
         );
 
         //mail to notify the approver
-        approvals[i].current = true;
         await this.mailClient.sendNewRequestProcessApproverMail(
           approver.Email,
           requester.id,
@@ -132,7 +131,7 @@ export class RequestVacationService {
           requester.Name,
           'Vacaciones',
         );
-        break;
+        return;
       }
     }
   }
@@ -204,6 +203,7 @@ export class RequestVacationService {
     mayor: Employee,
     EmployeeId: string,
   ) {
+    console.log(RequesterDepartment, RRHHdepartment, mayor);
     // If the department head is not assigned, or the department head is the employee who is requesting the vacation, the department approval is true
     if (
       !RequesterDepartment.departmentHeadId ||
@@ -211,22 +211,27 @@ export class RequestVacationService {
     ) {
       approvals[0].approved = true;
       approvals[0].observation =
-        'La solicitud fue aprobada automáticamente por el sistema en el proceso 1 ya que el solicitante es el jefe del departamento en el que está asignado';
-      approvals[0].ApprovedDate = new Date();
+        'La solicitud fue aprobada automáticamente por el sistema en el proceso 1 ya que el solicitante es el jefe del departamento en el que está asignado o no poseé jefe de departamento';
     }
     // If the RRHH  head is the employee who is requesting the vacation, the RRHH department approval is true (yeilin)
     if (RRHHdepartment.departmentHeadId === EmployeeId) {
       approvals[1].approved = true;
       approvals[1].observation =
         'La solicitud fue aprobada automáticamente por el sistema en el proceso 2 ya que el solicitante es el jefe del departamento de RRHH';
-      approvals[1].ApprovedDate = new Date();
     }
     // If the mayor is the employee who is requesting the vacation, the mayor approval is true (teddy o vica)
     if (mayor.id === EmployeeId) {
       approvals[2].approved = true;
       approvals[2].observation =
         'La solicitud fue aprobada automáticamente por el sistema en el proceso 3 ya que el solicitante es Alcalde municipal';
-      approvals[2].ApprovedDate = new Date();
+    }
+
+    // Set the first approval not approved as the current approval
+    for (let i = 0; i < approvals.length; i++) {
+      if (approvals[i].approved === undefined) {
+        approvals[i].current = true;
+        break;
+      }
     }
   }
 

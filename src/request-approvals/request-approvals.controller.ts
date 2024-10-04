@@ -10,7 +10,8 @@ import {
 import { RequestApprovalsService } from './request-approvals.service';
 import { CreateRequestApprovalDto } from './dto/create-request-approval.dto';
 import { UpdateRequestApprovalDto } from './dto/update-request-approval.dto';
-
+import { ApiTags } from '@nestjs/swagger';
+@ApiTags('request-approvals')
 @Controller('request-approvals')
 export class RequestApprovalsController {
   constructor(
