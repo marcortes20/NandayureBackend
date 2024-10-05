@@ -30,6 +30,18 @@ export class RequestsService {
     return await this.requestRepository.findOneById(id);
   }
 
+  async findAllMyRequest(EmployeeId: string) {
+    return await this.requestRepository.findAll({
+      where: { EmployeeId },
+      relations: {
+        RequestApprovals: true,
+        RequestVacation: true,
+        RequestSalaryCertificate: true,
+        RequestPaymentConfirmation: true,
+      },
+    });
+  }
+
   // async update(id: number, updateRequestDto: UpdateRequestDto) {
   //   return `This action updates a #${id} request`;
   // }

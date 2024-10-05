@@ -18,6 +18,11 @@ export class RequestsController {
     return this.requestsService.findAll();
   }
 
+  @Get('test')
+  findAlltest(@Param('id') id: string) {
+    return this.requestsService.findAllMyRequest(id);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.requestsService.findOne(+id);

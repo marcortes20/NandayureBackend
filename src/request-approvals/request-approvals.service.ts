@@ -60,6 +60,10 @@ export class RequestApprovalsService {
     requester: Employee,
     queryRunner: QueryRunner,
   ) {
+    //falta devolveo un bool para saber que correo enviar luego del commit de la transaccion
+
+    let mailType = null;
+
     const request = await this.requestRepository.findOne({
       where: { id: RequestId },
       relations: {
@@ -71,12 +75,13 @@ export class RequestApprovalsService {
       request.RequestStateId = 3; // Rechazado
       await queryRunner.manager.save(request);
 
-      this.mailClient.sendRequestResolution(
-        requester.Email,
-        requester.Name,
-        request.RequestType.name,
-        false,
-      );
+      mailType = false;
+      // this.mailClient.sendRequestResolution(
+      //   requester.Email,
+      //   requester.Name,
+      //   request.RequestType.name,
+      //   false,
+      // );
     }
     const nextStep = await queryRunner.manager.findOne(RequestApproval, {
       where: {
@@ -85,28 +90,29 @@ export class RequestApprovalsService {
       },
       order: { processNumber: 'ASC' },
     });
-    console.log(nextStep);
 
     if (nextStep) {
       nextStep.current = true;
       await queryRunner.manager.save(nextStep);
-      this.mailClient.sendNewRequestProcessApproverMail(
-        approver.Email,
-        requester.id,
-        requester.Name,
-        request.RequestType.name,
-      );
+      // this.mailClient.sendNewRequestProcessApproverMail(
+      //   approver.Email,
+      //   requester.id,
+      //   requester.Name,
+      //   request.RequestType.name,
+      // );
       //return;
     } else {
       request.RequestStateId = 2; // Aprobado
       await queryRunner.manager.save(request);
-      this.mailClient.sendRequestResolution(
-        requester.Email,
-        requester.Name,
-        request.RequestType.name,
-        true,
-      );
+      mailType = true;
+      // this.mailClient.sendRequestResolution(
+      //   requester.Email,
+      //   requester.Name,
+      //   request.RequestType.name,
+      //   true,
+      // );
     }
+    return { mailType, nextStep };
   }
 
   async update(
