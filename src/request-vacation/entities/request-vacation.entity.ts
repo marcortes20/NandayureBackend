@@ -21,15 +21,6 @@ export class RequestVacation {
   @Column()
   entryDate: Date;
 
-  @Column({ nullable: true, default: null })
-  departmentApproval: boolean;
-
-  @Column({ nullable: true, default: null })
-  RRHHApproval: boolean;
-
-  @Column({ nullable: true, default: null })
-  mayorApproval: boolean;
-
   @Column({ unique: true })
   RequestId: number;
 

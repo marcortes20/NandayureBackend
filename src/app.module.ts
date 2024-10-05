@@ -30,6 +30,7 @@ import { DepartmentProgramsModule } from './department-programs/department-progr
 import { BudgetCodesModule } from './budget-codes/budget-codes.module';
 import { DbModule } from './db/db.module';
 import { RequestApprovalsModule } from './request-approvals/request-approvals.module';
+import { RequestTypesModule } from './request-types/request-types.module';
 
 @Module({
   imports: [
@@ -66,6 +67,7 @@ import { RequestApprovalsModule } from './request-approvals/request-approvals.mo
     DepartmentProgramsModule,
     BudgetCodesModule,
     RequestApprovalsModule,
+    RequestTypesModule,
   ],
 
   controllers: [AppController],

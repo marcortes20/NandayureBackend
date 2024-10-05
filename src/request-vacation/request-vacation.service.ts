@@ -49,7 +49,9 @@ export class RequestVacationService {
       );
 
       // 4. Create the request who will be related to the vacation request and approvals
-      const request = await this.createRequest(EmployeeId, queryRunner);
+
+      //requestTypeId 1 is for vacation requests
+      const request = await this.createRequest(EmployeeId, 1, queryRunner);
 
       // 5. Create the approvals for the request
       const approvals = await this.createApprovals(
@@ -146,6 +148,12 @@ export class RequestVacationService {
     const RequesterDepartment =
       await this.employeeRepository.getEmployeeDepartment(EmployeeId);
 
+    if (RRHHdepartment.departmentHeadId === null) {
+      throw new NotFoundException(
+        'Para realizar una solicitud de vacaciones es necesario que exista un jefe de departamento de RRHH',
+      );
+    }
+
     if (!RequesterDepartment || !RRHHdepartment || !mayor) {
       throw new NotFoundException(
         'No se encontraron los datos necesarios para la aprobación de la solicitud',
@@ -154,10 +162,15 @@ export class RequestVacationService {
 
     return { RRHHdepartment, mayor, RequesterDepartment };
   }
-  async createRequest(EmployeeId: string, queryRunner: QueryRunner) {
+  async createRequest(
+    EmployeeId: string,
+    RequestTypeId: number,
+    queryRunner: QueryRunner,
+  ) {
     // 2. Create a new request
     const request = this.requestRepository.create({
       EmployeeId: EmployeeId,
+      RequestTypeId: RequestTypeId,
     });
 
     return await queryRunner.manager.save(request);
@@ -212,18 +225,21 @@ export class RequestVacationService {
       approvals[0].approved = true;
       approvals[0].observation =
         'La solicitud fue aprobada automáticamente por el sistema en el proceso 1 ya que el solicitante es el jefe del departamento en el que está asignado o no poseé jefe de departamento';
+      approvals[0].ApprovedDate = new Date();
     }
     // If the RRHH  head is the employee who is requesting the vacation, the RRHH department approval is true (yeilin)
     if (RRHHdepartment.departmentHeadId === EmployeeId) {
       approvals[1].approved = true;
       approvals[1].observation =
         'La solicitud fue aprobada automáticamente por el sistema en el proceso 2 ya que el solicitante es el jefe del departamento de RRHH';
+      approvals[1].ApprovedDate = new Date();
     }
     // If the mayor is the employee who is requesting the vacation, the mayor approval is true (teddy o vica)
     if (mayor.id === EmployeeId) {
       approvals[2].approved = true;
       approvals[2].observation =
         'La solicitud fue aprobada automáticamente por el sistema en el proceso 3 ya que el solicitante es Alcalde municipal';
+      approvals[2].ApprovedDate = new Date();
     }
 
     // Set the first approval not approved as the current approval

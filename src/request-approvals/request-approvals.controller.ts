@@ -6,11 +6,14 @@ import {
   Patch,
   Param,
   Delete,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 import { RequestApprovalsService } from './request-approvals.service';
 import { CreateRequestApprovalDto } from './dto/create-request-approval.dto';
 import { UpdateRequestApprovalDto } from './dto/update-request-approval.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from 'src/auth/guards/auth.guard';
 @ApiTags('request-approvals')
 @Controller('request-approvals')
 export class RequestApprovalsController {
@@ -33,12 +36,20 @@ export class RequestApprovalsController {
   //   return this.requestApprovalsService.findOne(+id);
   // }
 
+  @UseGuards(AuthGuard)
   @Patch(':id')
   update(
     @Param('id') id: string,
-    @Body() updateRequestApprovalDto: UpdateRequestApprovalDto,
+    @Req() req,
+    @Body()
+    updateRequestApprovalDto: UpdateRequestApprovalDto,
   ) {
-    return this.requestApprovalsService.update(+id, updateRequestApprovalDto);
+    console.log(req.user.id);
+    return this.requestApprovalsService.update(
+      +id,
+      updateRequestApprovalDto,
+      req.user.id,
+    );
   }
 
   @Delete(':id')

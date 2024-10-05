@@ -92,4 +92,18 @@ export class MailClientService {
       //html: welcomeMail,
     });
   }
+  async sendRequestResolution(
+    requesterEmail: string,
+    requesterName: string,
+    requestType: string,
+    approved: boolean,
+  ) {
+    this.mailService.sendMail({
+      from: 'RH-Nandayure',
+      to: requesterEmail,
+      subject: `Su solicitud de ${requestType} fue respondida`,
+      text: `Estimad@ ${requesterName}  su solicitud de ${requestType} fue ${approved ? 'aprobada' : 'rechazada'}`,
+      //html: welcomeMail,
+    });
+  }
 }

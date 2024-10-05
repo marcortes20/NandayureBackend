@@ -18,6 +18,7 @@ import OvertimeSeeder from 'src/overtimes/seed/overtimes.seeder';
 import AnnuitySeeder from 'src/annuities/seed/annuity.seeder';
 import LaborCodeRegulationSeeder from 'src/labor-code-regulations/seed/roles.seeder';
 import RequestsStateSeeder from 'src/requests-state/seed/requestState.seeder';
+import RequestTypeSeeder from 'src/request-types/seed/RequestType.seeder';
 
 export default class BaseSeeder implements Seeder {
   public async run(dataSource: DataSource): Promise<void> {
@@ -39,6 +40,7 @@ export default class BaseSeeder implements Seeder {
     const annuitySeeder = new AnnuitySeeder();
     const laborCodeRegulationSeeder = new LaborCodeRegulationSeeder();
     const requestsStateSeeder = new RequestsStateSeeder();
+    const requestTypeSeeder = new RequestTypeSeeder();
 
     await municipalitySedder.run(dataSource);
     await typeInstitutionSeeder.run(dataSource);
@@ -58,5 +60,6 @@ export default class BaseSeeder implements Seeder {
     await annuitySeeder.run(dataSource);
     await laborCodeRegulationSeeder.run(dataSource);
     await requestsStateSeeder.run(dataSource);
+    await requestTypeSeeder.run(dataSource);
   }
 }
