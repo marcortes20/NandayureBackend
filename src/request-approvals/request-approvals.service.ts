@@ -12,7 +12,6 @@ import { MailClientService } from 'src/mail-client/mail-client.service';
 import { RequestRepository } from 'src/requests/repository/request.repository';
 import { DataSource, IsNull, QueryRunner } from 'typeorm';
 import { RequestApproval } from './entities/request-approval.entity';
-import { Employee } from 'src/employees/entities/employee.entity';
 
 @Injectable()
 export class RequestApprovalsService {
@@ -27,16 +26,104 @@ export class RequestApprovalsService {
   async findAll() {
     return await this.requestApprovalRepository.findAll();
   }
-  async findMyRequestToApprove(approverId: string) {
+
+  async findCurrentRequestToApprove(approverId: string) {
     return await this.requestApprovalRepository.findAll({
       where: { approverId, approved: IsNull(), current: true },
     });
   }
 
-  async findOneByRequestId(id: number) {
+  async findByRequestId(id: number) {
     return await this.requestApprovalRepository.findOne({
       where: { RequestId: id },
     });
+  }
+
+  async update(
+    id: number,
+    updateRequestApprovalDto: UpdateRequestApprovalDto,
+    approverId: string,
+  ) {
+    // 1. Create a new transaction
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      //2. Validate if the request approval exists and is the current process
+      const existRequestApproval = await this.validateRequestApproval(id);
+
+      //3. Validate if the approver is the same as the one who must approve
+      if (existRequestApproval.approverId !== approverId) {
+        throw new BadRequestException(
+          'No tiene permisos para aprobar esta solicitud',
+        );
+      }
+      //4. Update the request approval instance
+      const requestApprovalToEdit = this.requestApprovalRepository.create({
+        ...existRequestApproval,
+        ...updateRequestApprovalDto,
+        approved: true,
+        ApprovedDate: new Date(),
+        current: false,
+      });
+
+      //5. Save the updated request approval instance
+      const updated = await queryRunner.manager.save(requestApprovalToEdit);
+
+      //6. Validate if there is a next step in the process and update the request state
+      const { mailType, nextStep, request } = await this.validateNextStep(
+        updated,
+        existRequestApproval.RequestId,
+        queryRunner,
+      );
+
+      //7. Commit the transaction
+      await queryRunner.commitTransaction();
+
+      //Thiis instance may be use to show information at the email type 3
+      // const approver = await this.employeeRepository.findOneById(
+      //   updated.approverId,
+      // );
+
+      // This istance is used to send the email to the requester
+      const requester = await this.employeeRepository.findOneById(
+        updated.requesterId,
+      );
+      //Case request is rejected
+      if (mailType === false) {
+        this.mailClient.sendRequestResolution(
+          requester.Email,
+          requester.Name,
+          request.RequestType.name,
+          false,
+        );
+        //Case request is approved
+      } else if (mailType === true) {
+        this.mailClient.sendRequestResolution(
+          requester.Email,
+          requester.Name,
+          request.RequestType.name,
+          true,
+        );
+        //Case there is a next step to approve or reject
+      } else {
+        const nextApprover = await this.employeeRepository.findOneById(
+          nextStep.approverId,
+        );
+        this.mailClient.sendNewRequestProcessApproverMail(
+          nextApprover.Email,
+          requester.id,
+          requester.Name,
+          request.RequestType.name,
+        );
+      }
+      return updated;
+    } catch (e) {
+      await queryRunner.rollbackTransaction();
+      throw new InternalServerErrorException(e);
+    } finally {
+      await queryRunner.release(); // release the queryRunner
+    }
   }
 
   async validateRequestApproval(id: number) {
@@ -56,12 +143,8 @@ export class RequestApprovalsService {
   async validateNextStep(
     updated: RequestApproval,
     RequestId: number,
-    approver: Employee,
-    requester: Employee,
     queryRunner: QueryRunner,
   ) {
-    //falta devolveo un bool para saber que correo enviar luego del commit de la transaccion
-
     let mailType = null;
 
     const request = await this.requestRepository.findOne({
@@ -74,14 +157,7 @@ export class RequestApprovalsService {
     if (updated.approved === false) {
       request.RequestStateId = 3; // Rechazado
       await queryRunner.manager.save(request);
-
       mailType = false;
-      // this.mailClient.sendRequestResolution(
-      //   requester.Email,
-      //   requester.Name,
-      //   request.RequestType.name,
-      //   false,
-      // );
     }
     const nextStep = await queryRunner.manager.findOne(RequestApproval, {
       where: {
@@ -91,84 +167,15 @@ export class RequestApprovalsService {
       order: { processNumber: 'ASC' },
     });
 
-    if (nextStep) {
+    if (nextStep !== null) {
       nextStep.current = true;
       await queryRunner.manager.save(nextStep);
-      // this.mailClient.sendNewRequestProcessApproverMail(
-      //   approver.Email,
-      //   requester.id,
-      //   requester.Name,
-      //   request.RequestType.name,
-      // );
-      //return;
     } else {
       request.RequestStateId = 2; // Aprobado
       await queryRunner.manager.save(request);
       mailType = true;
-      // this.mailClient.sendRequestResolution(
-      //   requester.Email,
-      //   requester.Name,
-      //   request.RequestType.name,
-      //   true,
-      // );
     }
-    return { mailType, nextStep };
-  }
-
-  async update(
-    id: number,
-    updateRequestApprovalDto: UpdateRequestApprovalDto,
-    approverId: string,
-  ) {
-    // 1. Create a new transaction
-    const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-    try {
-      //agregar transaccion
-
-      const existRequestApproval = await this.validateRequestApproval(id);
-      if (existRequestApproval.approverId !== approverId) {
-        throw new BadRequestException(
-          'No tiene permisos para aprobar esta solicitud',
-        );
-      }
-
-      const requestApprovalToEdit = this.requestApprovalRepository.create({
-        ...existRequestApproval,
-        ...updateRequestApprovalDto,
-        approved: true,
-        ApprovedDate: new Date(),
-        current: false,
-      });
-
-      const updated = await queryRunner.manager.save(requestApprovalToEdit);
-      console.log(updated);
-
-      const approver = await this.employeeRepository.findOneById(
-        updated.approverId,
-      );
-
-      const requester = await this.employeeRepository.findOneById(
-        updated.requesterId,
-      );
-
-      await this.validateNextStep(
-        updated,
-        existRequestApproval.RequestId,
-        approver,
-        requester,
-        queryRunner,
-      );
-
-      await queryRunner.commitTransaction();
-      return updated;
-    } catch (e) {
-      await queryRunner.rollbackTransaction();
-      throw new InternalServerErrorException(e);
-    } finally {
-      await queryRunner.release(); // release the queryRunner
-    }
+    return { mailType, nextStep, request };
   }
 
   async remove(id: number) {

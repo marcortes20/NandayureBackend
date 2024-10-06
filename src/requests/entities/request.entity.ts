@@ -26,7 +26,7 @@ export class Request {
   @Column({ type: 'int', default: 1 })
   RequestStateId: number;
 
-  @Column({ type: 'int', default: 1 })
+  @Column({ type: 'int', nullable: false })
   RequestTypeId: number;
 
   @Column()

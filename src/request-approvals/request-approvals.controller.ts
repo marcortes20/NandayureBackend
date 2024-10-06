@@ -30,10 +30,18 @@ export class RequestApprovalsController {
     return this.requestApprovalsService.findAll();
   }
 
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.requestApprovalsService.findOne(+id);
-  // }
+  @UseGuards(AuthGuard)
+  @Get('currentToApprove:ApproverId')
+  findRequestConfirmation(@Req() req) {
+    return this.requestApprovalsService.findCurrentRequestToApprove(
+      req.user.id,
+    );
+  }
+
+  @Get(':RequestId')
+  findOne(@Param('id') id: string) {
+    return this.requestApprovalsService.findByRequestId(+id);
+  }
 
   @UseGuards(AuthGuard)
   @Patch(':id')

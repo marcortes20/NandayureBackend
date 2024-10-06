@@ -28,6 +28,7 @@ export class RequestVacationService {
     private readonly mailClient: MailClientService,
   ) {}
 
+  //this method is used to create a new vacation request, the request is related to the vacation request and the approvals
   async create(
     createRequestVacationDto: CreateRequestVacationDto,
     EmployeeId: string,
@@ -49,7 +50,6 @@ export class RequestVacationService {
       );
 
       // 4. Create the request who will be related to the vacation request and approvals
-
       //requestTypeId 1 is for vacation requests
       const request = await this.createRequest(EmployeeId, 1, queryRunner);
 
@@ -87,11 +87,11 @@ export class RequestVacationService {
       // 10. Save the vacation request
       const savedRequest = await queryRunner.manager.save(newVacationRequest);
 
-      // 11. Send the confirmation mails to the approvers and the requester
-      await this.sendRequestConfirmationMails(approvals);
-
-      // 12. Commit the transaction
+      // 11. Commit the transaction
       await queryRunner.commitTransaction();
+
+      // 12. Send the confirmation mails to the approvers and the requester
+      await this.sendRequestConfirmationMails(approvals);
 
       return savedRequest;
     } catch (error) {
@@ -106,40 +106,44 @@ export class RequestVacationService {
     }
   }
 
+  //this method is used to send the confirmation mails to the approvers and the requester, the mail is sent only to the first step of the approval process
   async sendRequestConfirmationMails(approvals: CreateRequestApprovalDto[]) {
     // Send mail to the first step of the approval process
-    for (let i = 0; i < approvals.length; i++) {
-      if (approvals[i].approved === undefined) {
-        const approver = await this.employeeRepository.findOneById(
-          approvals[i].approverId,
-        );
 
-        const requester = await this.employeeRepository.findOneById(
-          approvals[i].requesterId,
-        );
+    const firstStepIndex = approvals.findIndex(
+      (item) => item.approved === undefined,
+    );
 
-        //mail to notify the approver
-        await this.mailClient.sendNewRequestProcessApproverMail(
-          approver.Email,
-          requester.id,
-          requester.Name,
-          'Vacaciones',
-        );
-
-        //mail to notify the requester
-        await this.mailClient.sendNewRequestProcessRequesterMail(
-          approver.Name,
-          requester.Email,
-          requester.Name,
-          'Vacaciones',
-        );
-        return;
-      }
+    if (firstStepIndex === -1) {
+      throw new Error('No se encontró ningún elemento sin aprobación.');
     }
+
+    //destructuring the approver and requester id of the first step
+    const { approverId, requesterId } = approvals[firstStepIndex];
+
+    const approver = await this.employeeRepository.findOneById(approverId);
+
+    const requester = await this.employeeRepository.findOneById(requesterId);
+
+    //mail to notify the approver
+    await this.mailClient.sendNewRequestProcessApproverMail(
+      approver.Email,
+      requester.id,
+      requester.Name,
+      'Vacaciones',
+    );
+
+    //mail to notify the requester
+    await this.mailClient.sendNewRequestProcessRequesterMail(
+      approver.Name,
+      requester.Email,
+      requester.Name,
+      'Vacaciones',
+    );
   }
 
+  //this method is used to get the entities needed for the approval process and validate if the department head of RRHH exists
   async getApprovalEntities(EmployeeId: string) {
-    //validate if the employee is the department head OF the RRHH department head OF the mayor OR the head of his department
     const RRHHdepartment =
       await this.departmentRepository.findOneByName('RECURSOS HUMANOS');
 
@@ -148,34 +152,33 @@ export class RequestVacationService {
     const RequesterDepartment =
       await this.employeeRepository.getEmployeeDepartment(EmployeeId);
 
-    if (RRHHdepartment.departmentHeadId === null) {
-      throw new NotFoundException(
-        'Para realizar una solicitud de vacaciones es necesario que exista un jefe de departamento de RRHH',
-      );
-    }
-
     if (!RequesterDepartment || !RRHHdepartment || !mayor) {
       throw new NotFoundException(
         'No se encontraron los datos necesarios para la aprobación de la solicitud',
       );
     }
 
-    return { RRHHdepartment, mayor, RequesterDepartment };
+    await this.departmentRepository.validateDepartmentHead(RRHHdepartment);
+
+    return { RRHHdepartment, mayor, RequesterDepartment }; //return the entities who will be used in the approval process
   }
+
+  //this method is used to create the request who will be related to the vacation request and approvals
   async createRequest(
     EmployeeId: string,
     RequestTypeId: number,
     queryRunner: QueryRunner,
   ) {
-    // 2. Create a new request
     const request = this.requestRepository.create({
       EmployeeId: EmployeeId,
-      RequestTypeId: RequestTypeId,
+      RequestTypeId: RequestTypeId, //requestTypeId 1 is for vacation requests
+      RequestStateId: 1, //requestStateId 1 is for pending requests
     });
 
     return await queryRunner.manager.save(request);
   }
 
+  //this method is used to create the approvals for the request. The approvals are created in the order of the process and the approvers are the department head, the RRHH head and the mayor
   async createApprovals(
     EmployeeId: string,
     departmentHeadId: string,
@@ -209,6 +212,8 @@ export class RequestVacationService {
 
     return approvals;
   }
+
+  // this method is used to auto approve the request if the employee is the department head/ doesn't hace department head or the mayor
   async autoApproveRequest(
     approvals: CreateRequestApprovalDto[],
     RequesterDepartment: Department,
@@ -242,13 +247,13 @@ export class RequestVacationService {
       approvals[2].ApprovedDate = new Date();
     }
 
-    // Set the first approval not approved as the current approval
-    for (let i = 0; i < approvals.length; i++) {
-      if (approvals[i].approved === undefined) {
-        approvals[i].current = true;
-        break;
-      }
-    }
+    // Find the first approval index not approved
+    const firstNoApprovedIndex = approvals.findIndex(
+      (index) => !index.approved,
+    );
+
+    // Set the first approval not approved as the current approval to start the approval process from there
+    approvals[firstNoApprovedIndex].current = true;
   }
 
   async findAll() {
