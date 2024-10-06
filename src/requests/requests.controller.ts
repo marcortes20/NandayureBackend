@@ -1,31 +1,24 @@
-import { Controller, Get, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Param, Delete } from '@nestjs/common';
 import { RequestsService } from './requests.service';
-//import { CreateRequestDto } from './dto/create-request.dto';
-import { UpdateRequestDto } from './dto/update-request.dto';
 import { ApiTags } from '@nestjs/swagger';
 @ApiTags('requests')
 @Controller('requests')
 export class RequestsController {
   constructor(private readonly requestsService: RequestsService) {}
 
-  // @Post()
-  // create(@Body() createRequestDto: CreateRequestDto) {
-  //   return this.requestsService.create(createRequestDto);
-  // }
-
   @Get()
   findAll() {
     return this.requestsService.findAll();
   }
 
+  @Get('requests/:EmployeeId')
+  findAllRequest(@Param('id') id: string) {
+    return this.requestsService.findAllRequestByEmployee(id);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.requestsService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateRequestDto: UpdateRequestDto) {
-    return this.requestsService.update(+id, updateRequestDto);
   }
 
   @Delete(':id')

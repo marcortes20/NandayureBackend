@@ -10,7 +10,8 @@ import { RequestApprovalRepository } from './repository/request-approvals.reposi
 import { EmployeesService } from 'src/employees/employees.service';
 import { MailClientService } from 'src/mail-client/mail-client.service';
 import { RequestRepository } from 'src/requests/repository/request.repository';
-import { IsNull } from 'typeorm';
+import { DataSource, IsNull, QueryRunner } from 'typeorm';
+import { RequestApproval } from './entities/request-approval.entity';
 
 @Injectable()
 export class RequestApprovalsService {
@@ -19,77 +20,162 @@ export class RequestApprovalsService {
     private readonly requestRepository: RequestRepository,
     private readonly employeeRepository: EmployeesService,
     private readonly mailClient: MailClientService,
+    private readonly dataSource: DataSource,
   ) {}
-
-  // async create(createRequestApprovalDto: CreateRequestApprovalDto) {
-  //   const newRequestApproval = this.requestApprovalRepository.create(
-  //     createRequestApprovalDto,
-  //   );
-
-  //   return createRequestApprovalDto;
-  // }
 
   async findAll() {
     return await this.requestApprovalRepository.findAll();
   }
 
-  async findOneByRequestId(id: number) {
+  async findCurrentRequestToApprove(approverId: string) {
+    return await this.requestApprovalRepository.findAll({
+      where: { approverId, approved: IsNull(), current: true },
+    });
+  }
+
+  async findByRequestId(id: number) {
     return await this.requestApprovalRepository.findOne({
       where: { RequestId: id },
     });
   }
 
-  async update(id: number, updateRequestApprovalDto: UpdateRequestApprovalDto) {
+  async update(
+    id: number,
+    updateRequestApprovalDto: UpdateRequestApprovalDto,
+    approverId: string,
+  ) {
+    // 1. Create a new transaction
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
     try {
-      //validar que la persona que esta aprobando sea la correcta
+      //2. Validate if the request approval exists and is the current process
+      const existRequestApproval = await this.validateRequestApproval(id);
 
-      const existRequestApproval =
-        await this.requestApprovalRepository.findOneById(id);
-
-      if (!existRequestApproval) {
-        throw new NotFoundException('Registro no encontrado');
+      //3. Validate if the approver is the same as the one who must approve
+      if (existRequestApproval.approverId !== approverId) {
+        throw new BadRequestException(
+          'No tiene permisos para aprobar esta solicitud',
+        );
       }
-
-      if (existRequestApproval.current === false) {
-        throw new BadRequestException('No es el proceso actual');
-      }
-
-      const updated = await this.requestApprovalRepository.save({
+      //4. Update the request approval instance
+      const requestApprovalToEdit = this.requestApprovalRepository.create({
         ...existRequestApproval,
         ...updateRequestApprovalDto,
+        approved: true,
         ApprovedDate: new Date(),
         current: false,
       });
 
-      const request = await this.requestRepository.findOneById(
-        updated.RequestId,
+      //5. Save the updated request approval instance
+      const updated = await queryRunner.manager.save(requestApprovalToEdit);
+
+      //6. Validate if there is a next step in the process and update the request state
+      const { mailType, nextStep, request } = await this.validateNextStep(
+        updated,
+        existRequestApproval.RequestId,
+        queryRunner,
       );
 
-      if (updated.approved === false) {
-        request.RequestStateId = 3; // Rechazado
-        await this.requestRepository.save(request);
+      //7. Commit the transaction
+      await queryRunner.commitTransaction();
 
-        return updated;
-      }
-      const nextStep = await this.requestApprovalRepository.findOne({
-        where: {
-          RequestId: existRequestApproval.RequestId,
-          approved: IsNull(),
-        },
-        order: { processNumber: 'ASC' },
-      });
+      //Thiis instance may be use to show information at the email type 3
+      // const approver = await this.employeeRepository.findOneById(
+      //   updated.approverId,
+      // );
 
-      if (nextStep) {
-        nextStep.current = true;
-        await this.requestApprovalRepository.save(nextStep);
+      // This istance is used to send the email to the requester
+      const requester = await this.employeeRepository.findOneById(
+        updated.requesterId,
+      );
+      //Case request is rejected
+      if (mailType === false) {
+        this.mailClient.sendRequestResolution(
+          requester.Email,
+          requester.Name,
+          request.RequestType.name,
+          false,
+        );
+        //Case request is approved
+      } else if (mailType === true) {
+        this.mailClient.sendRequestResolution(
+          requester.Email,
+          requester.Name,
+          request.RequestType.name,
+          true,
+        );
+        //Case there is a next step to approve or reject
       } else {
-        request.RequestStateId = 2; // Aprobado
-        await this.requestRepository.save(request);
+        const nextApprover = await this.employeeRepository.findOneById(
+          nextStep.approverId,
+        );
+        this.mailClient.sendNewRequestProcessApproverMail(
+          nextApprover.Email,
+          requester.id,
+          requester.Name,
+          request.RequestType.name,
+        );
       }
       return updated;
     } catch (e) {
+      await queryRunner.rollbackTransaction();
       throw new InternalServerErrorException(e);
+    } finally {
+      await queryRunner.release(); // release the queryRunner
     }
+  }
+
+  async validateRequestApproval(id: number) {
+    const requestApproval =
+      await this.requestApprovalRepository.findOneById(id);
+
+    if (!requestApproval) {
+      throw new NotFoundException('Registro no encontrado');
+    }
+
+    if (requestApproval.current === false) {
+      throw new BadRequestException('No es el proceso actual');
+    }
+    return requestApproval;
+  }
+
+  async validateNextStep(
+    updated: RequestApproval,
+    RequestId: number,
+    queryRunner: QueryRunner,
+  ) {
+    let mailType = null;
+
+    const request = await this.requestRepository.findOne({
+      where: { id: RequestId },
+      relations: {
+        RequestType: true,
+      },
+    });
+
+    if (updated.approved === false) {
+      request.RequestStateId = 3; // Rechazado
+      await queryRunner.manager.save(request);
+      mailType = false;
+    }
+    const nextStep = await queryRunner.manager.findOne(RequestApproval, {
+      where: {
+        RequestId: RequestId,
+        approved: IsNull(),
+      },
+      order: { processNumber: 'ASC' },
+    });
+
+    if (nextStep !== null) {
+      nextStep.current = true;
+      await queryRunner.manager.save(nextStep);
+    } else {
+      request.RequestStateId = 2; // Aprobado
+      await queryRunner.manager.save(request);
+      mailType = true;
+    }
+    return { mailType, nextStep, request };
   }
 
   async remove(id: number) {

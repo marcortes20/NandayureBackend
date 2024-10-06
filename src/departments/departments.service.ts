@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateDepartmentDto } from './dto/create-department.dto';
 import { UpdateDepartmentDto } from './dto/update-department.dto';
 import { DepartmentRepository } from './repository/Department.repository';
+import { Department } from './entities/department.entity';
 
 @Injectable()
 export class DepartmentsService {
@@ -44,5 +45,13 @@ export class DepartmentsService {
       throw new NotFoundException('Registro no encontrado');
     }
     return await this.departmentRepository.remove(departmentToRemove);
+  }
+
+  async validateDepartmentHead(department: Department) {
+    if (!department.departmentHeadId) {
+      throw new NotFoundException(
+        `El departamento ${department.name} no tiene jefe asignado`,
+      );
+    }
   }
 }
