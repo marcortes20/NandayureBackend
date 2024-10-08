@@ -44,7 +44,7 @@ export class RequestsService {
 
   async findAllRequestByEmployee(EmployeeId: string) {
     return await this.requestRepository.findAll({
-      where: { EmployeeId },
+      where: { EmployeeId: EmployeeId },
       relations: {
         RequestApprovals: true,
         RequestVacation: true,
