@@ -130,7 +130,7 @@ export class RequestVacationService {
     const requester = await this.employeeRService.findOneById(requesterId);
 
     //mail to notify the approver
-    await this.mailClient.sendNewRequestProcessApproverMail(
+    this.mailClient.sendNewRequestProcessApproverMail(
       approver.Email,
       requester.id,
       requester.Name,
@@ -138,7 +138,7 @@ export class RequestVacationService {
     );
 
     //mail to notify the requester
-    await this.mailClient.sendNewRequestProcessRequesterMail(
+    this.mailClient.sendNewRequestProcessRequesterMail(
       approver.Name,
       requester.Email,
       requester.Name,
@@ -225,7 +225,6 @@ export class RequestVacationService {
     mayor: Employee,
     EmployeeId: string,
   ) {
-    console.log(RequesterDepartment, RRHHdepartment, mayor);
     // If the department head is not assigned, or the department head is the employee who is requesting the vacation, the department approval is true
     if (
       !RequesterDepartment.departmentHeadId ||

@@ -13,6 +13,7 @@ import { CreateRequestApprovalDto } from 'src/request-approvals/dto/create-reque
 import { MailClientService } from 'src/mail-client/mail-client.service';
 import { RequestsService } from 'src/requests/requests.service';
 import { RequestApprovalRepository } from 'src/request-approvals/repository/request-approvals.repository';
+import { Employee } from 'src/employees/entities/employee.entity';
 
 @Injectable()
 export class RequestPaymentConfirmationsService {
@@ -35,60 +36,42 @@ export class RequestPaymentConfirmationsService {
     await queryRunner.startTransaction();
 
     try {
-      // 2. Validate if the employee exists
-      const existEmployee = await this.employeeService.findOneById(EmployeeId);
+      // 2. Validate the employee who made the request and the RRHH department
+      const { existEmployee, RRHHdepartment, deparmentHead } =
+        await this.getApprovalEntity(EmployeeId);
 
-      if (!existEmployee) {
-        throw new NotFoundException('El empleado no existe');
-      }
-
-      // 3. Validate if the RRHH department exists
-      const RRHHdepartment =
-        await this.departmentService.findOneByName('RECURSOS HUMANOS');
-
-      if (!RRHHdepartment) {
-        throw new NotFoundException(
-          'No se pueede realizar una solicitud sin el departamento de recursos humanos',
-        );
-      }
-
-      // 4. validate if RRHH deparment has a boos
-      await this.departmentService.validateDepartmentHead(RRHHdepartment);
-
-      // 5. Create a new request who will be related to the payment confirmation
+      // 3. Create a new request who will be related to the payment confirmation
       const request = await this.requestService.createRequest(
         EmployeeId,
         3, //requestTypeId 3 is for payment confirmation
         queryRunner,
       );
 
-      // 6. Create a new payment confirmation request
+      // 4. Create a new payment confirmation request
       const newPaymentRequest = this.paymentConfirmationRepository.create({
         ...createRequestPaymentConfirmationDto,
         RequestId: request.id,
       });
 
-      // 7. Save the payment confirmation request
+      // 5. Save the payment confirmation request
       const savedPaymentRequest =
         await queryRunner.manager.save(newPaymentRequest);
 
-      // 8. Create a new approval for the payment confirmation request
-      const approval: CreateRequestApprovalDto = {
-        approverId: RRHHdepartment.departmentHeadId,
-        processNumber: 1,
-        current: true,
-        RequestId: request.id,
-        requesterId: EmployeeId,
-      };
+      // 6. Create a new approval for the payment confirmation request
+      const approval = await this.createApproval(
+        RRHHdepartment.departmentHeadId,
+        request.id,
+        EmployeeId,
+      );
 
-      const approvalCreated = this.requestApprovalRepository.create(approval);
+      await queryRunner.manager.save(approval);
 
-      await queryRunner.manager.save(approvalCreated);
-
-      // 9. Commit the transaction
+      // 7. Commit the transaction
       await queryRunner.commitTransaction();
 
-      // 10. Send an email to the boss of the RRHH department and the employee who made the request  (In progress)
+      // 8. Send an email to the boss of the RRHH department and the employee who made the request to notify them
+      this.sendRequestConfirmationMails(deparmentHead, existEmployee);
+
       return savedPaymentRequest;
     } catch (error) {
       await queryRunner.rollbackTransaction();
@@ -99,6 +82,73 @@ export class RequestPaymentConfirmationsService {
     } finally {
       await queryRunner.release();
     }
+  }
+
+  async createApproval(
+    departmentHeadId: string,
+    requestId: number,
+    EmployeeId: string,
+  ) {
+    // Create a new approval for the payment confirmation request
+
+    const approval: CreateRequestApprovalDto = {
+      approverId: departmentHeadId,
+      processNumber: 1,
+      current: true,
+      RequestId: requestId,
+      requesterId: EmployeeId,
+    };
+
+    return this.requestApprovalRepository.create(approval);
+  }
+
+  async sendRequestConfirmationMails(approver: Employee, requester: Employee) {
+    //mail to notify the approver
+
+    this.mailClient.sendNewRequestProcessApproverMail(
+      approver.Email,
+      requester.id,
+      requester.Name,
+      'Boleta de pago',
+    );
+
+    //mail to notify the requester
+    if (approver.id !== requester.id) {
+      this.mailClient.sendNewRequestProcessRequesterMail(
+        approver.Name,
+        requester.Email,
+        requester.Name,
+        'Boleta de pago',
+      );
+    }
+  }
+
+  async getApprovalEntity(EmployeeId: string) {
+    // Validate if the employee who request exists
+    const existEmployee = await this.employeeService.findOneById(EmployeeId);
+
+    if (!existEmployee) {
+      throw new NotFoundException('El empleado no existe');
+    }
+
+    // Validate if the RRHH department exists
+    const RRHHdepartment =
+      await this.departmentService.findOneByName('RECURSOS HUMANOS');
+
+    if (!RRHHdepartment) {
+      throw new NotFoundException(
+        'No se pueede realizar una solicitud sin el departamento de recursos humanos',
+      );
+    }
+
+    //validate if RRHH deparment has a boos
+    await this.departmentService.validateDepartmentHead(RRHHdepartment);
+
+    const deparmentHead = await this.employeeService.findOneById(
+      RRHHdepartment.departmentHeadId,
+    );
+
+    return { existEmployee, RRHHdepartment, deparmentHead };
   }
 
   async findAll() {
