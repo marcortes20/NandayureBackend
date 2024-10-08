@@ -30,6 +30,11 @@ export class RequestApprovalsService {
   async findCurrentRequestToApprove(approverId: string) {
     return await this.requestApprovalRepository.findAll({
       where: { approverId, approved: IsNull(), current: true },
+      relations: {
+        Request: {
+          RequestType: true,
+        },
+      },
     });
   }
 
