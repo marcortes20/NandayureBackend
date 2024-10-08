@@ -131,8 +131,12 @@ export class RequestApprovalsService {
   }
 
   async validateRequestApproval(id: number) {
-    const requestApproval =
-      await this.requestApprovalRepository.findOneById(id);
+    const requestApproval = await this.requestApprovalRepository.findOne({
+      where: { id: id },
+      relations: {
+        Request: true,
+      },
+    });
 
     if (!requestApproval) {
       throw new NotFoundException('Registro no encontrado');
@@ -140,6 +144,13 @@ export class RequestApprovalsService {
 
     if (requestApproval.current === false) {
       throw new BadRequestException('No es el proceso actual');
+    }
+
+    if (
+      requestApproval.Request.RequestStateId === 2 ||
+      requestApproval.Request.RequestStateId === 3
+    ) {
+      throw new BadRequestException('La solicitud ya fue aprobada o rechazada');
     }
     return requestApproval;
   }
@@ -157,13 +168,6 @@ export class RequestApprovalsService {
         RequestType: true,
       },
     });
-
-    if (updated.approved === false) {
-      console.log('desaporvado');
-      request.RequestStateId = 3; // Rechazado
-      await queryRunner.manager.save(request);
-      mailType = false;
-    }
     const nextStep = await queryRunner.manager.findOne(RequestApproval, {
       where: {
         RequestId: RequestId,
@@ -171,18 +175,23 @@ export class RequestApprovalsService {
       },
       order: { processNumber: 'ASC' },
     });
-    console.log(nextStep);
+    console.log('nextStep', nextStep);
 
-    if (nextStep !== null) {
-      console.log('hay otro paso');
-      nextStep.current = true;
-      await queryRunner.manager.save(nextStep);
-    } else if (nextStep !== null && updated.approved === true) {
-      console.log('aprovado');
-      request.RequestStateId = 2; // Aprobado
+    if (updated.approved) {
+      if (nextStep) {
+        nextStep.current = true;
+        await queryRunner.manager.save(nextStep);
+      } else {
+        request.RequestStateId = 2; // Aprobado
+        await queryRunner.manager.save(request);
+        mailType = true;
+      }
+    } else {
+      request.RequestStateId = 3; // Rechazado
       await queryRunner.manager.save(request);
-      mailType = true;
+      mailType = false;
     }
+
     return { mailType, nextStep, request };
   }
 
