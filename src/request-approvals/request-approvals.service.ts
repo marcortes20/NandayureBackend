@@ -62,7 +62,6 @@ export class RequestApprovalsService {
       const requestApprovalToEdit = this.requestApprovalRepository.create({
         ...existRequestApproval,
         ...updateRequestApprovalDto,
-        approved: true,
         ApprovedDate: new Date(),
         current: false,
       });
@@ -155,6 +154,7 @@ export class RequestApprovalsService {
     });
 
     if (updated.approved === false) {
+      console.log('desaporvado');
       request.RequestStateId = 3; // Rechazado
       await queryRunner.manager.save(request);
       mailType = false;
@@ -166,11 +166,14 @@ export class RequestApprovalsService {
       },
       order: { processNumber: 'ASC' },
     });
+    console.log(nextStep);
 
     if (nextStep !== null) {
+      console.log('hay otro paso');
       nextStep.current = true;
       await queryRunner.manager.save(nextStep);
-    } else {
+    } else if (nextStep !== null && updated.approved === true) {
+      console.log('aprovado');
       request.RequestStateId = 2; // Aprobado
       await queryRunner.manager.save(request);
       mailType = true;
