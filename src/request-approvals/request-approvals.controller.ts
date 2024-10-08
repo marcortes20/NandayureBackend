@@ -20,11 +20,6 @@ export class RequestApprovalsController {
     private readonly requestApprovalsService: RequestApprovalsService,
   ) {}
 
-  // @Post()
-  // create(@Body() createRequestApprovalDto: CreateRequestApprovalDto) {
-  //   return this.requestApprovalsService.create(createRequestApprovalDto);
-  // }
-
   @Get()
   findAll() {
     return this.requestApprovalsService.findAll();
@@ -32,14 +27,14 @@ export class RequestApprovalsController {
 
   @UseGuards(AuthGuard)
   @Get('currentToApprove:ApproverId')
-  findRequestConfirmation(@Req() req) {
+  findCurrentToApprove(@Req() req) {
     return this.requestApprovalsService.findCurrentRequestToApprove(
       req.user.id,
     );
   }
 
   @Get(':RequestId')
-  findOne(@Param('id') id: string) {
+  findOneByRequestId(@Param('id') id: string) {
     return this.requestApprovalsService.findByRequestId(+id);
   }
 

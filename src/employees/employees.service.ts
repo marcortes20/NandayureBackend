@@ -130,7 +130,7 @@ export class EmployeesService {
   async validateEmployeeId(id: string) {
     const existEmployee = await this.findOneById(id);
     if (existEmployee) {
-      throw new ConflictException(
+      throw new NotFoundException(
         'Ya existe un empleado con ese número de identificación',
       );
     }
