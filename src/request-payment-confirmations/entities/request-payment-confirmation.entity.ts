@@ -12,9 +12,6 @@ export class RequestPaymentConfirmation {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
-  date: Date; // fecha en la que quiere que le generen la boleta de acuerdo con su pago quincenal
-
   @Column({ nullable: true })
   reason: string;
 

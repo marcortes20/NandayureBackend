@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { RequestRepository } from './repository/request.repository';
 import { RequestsStateService } from 'src/requests-state/requests-state.service';
 import { EmployeesService } from 'src/employees/employees.service';
+import { QueryRunner } from 'typeorm';
 
 @Injectable()
 export class RequestsService {
@@ -10,6 +11,21 @@ export class RequestsService {
     private readonly requestStateRepository: RequestsStateService,
     private readonly employeeRepository: EmployeesService,
   ) {}
+
+  async createRequest(
+    EmployeeId: string,
+    RequestTypeId: number,
+    queryRunner: QueryRunner,
+  ) {
+    const request = this.requestRepository.create({
+      EmployeeId: EmployeeId,
+      RequestTypeId: RequestTypeId,
+      RequestStateId: 1,
+      date: new Date(),
+    });
+
+    return await queryRunner.manager.save(request);
+  }
 
   async findAll() {
     return await this.requestRepository.findAll({
