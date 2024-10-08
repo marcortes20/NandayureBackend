@@ -19,7 +19,6 @@ export const defaultDepartmentData: CreateDepartmentDto[] = [
     description: 'Departamento encargado de la gestión del personal.',
     departmentProgramId: 1, // Tipo 1
     budgetCodeId: 1,
-    departmentHeadId: '504950876',
   },
   {
     name: 'PLANIFICACIÓN',

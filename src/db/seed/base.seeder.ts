@@ -61,5 +61,12 @@ export default class BaseSeeder implements Seeder {
     await laborCodeRegulationSeeder.run(dataSource);
     await requestsStateSeeder.run(dataSource);
     await requestTypeSeeder.run(dataSource);
+
+    // Actualizar departmentHeadId después de insertar empleados
+    const departmentRepository = dataSource.getRepository('Department');
+    await departmentRepository.update(
+      { name: 'RECURSOS HUMANOS' },
+      { departmentHeadId: '504950876' },
+    );
   }
 }
