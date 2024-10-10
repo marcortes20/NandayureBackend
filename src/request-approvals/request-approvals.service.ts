@@ -33,6 +33,9 @@ export class RequestApprovalsService {
       relations: {
         Request: {
           RequestType: true,
+          RequestSalaryCertificate: true,
+          RequestPaymentConfirmation: true,
+          RequestVacation: true,
         },
       },
     });
